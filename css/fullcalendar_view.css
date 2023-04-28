@@ -1,0 +1,40 @@
+:root {
+  --fc-neutral-bg-color: none;
+  --fc-border-color: none;
+}
+
+.fc .fc-daygrid-day-frame {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* .fc .fc-daygrid-day-number {
+  z-index: 7;
+} */
+
+.fc a[data-navlink]:hover {
+  text-decoration: none;
+}
+
+/* .fc-title {
+  visibility: hidden;
+} */
+
+/* .fc .fc-daygrid-day:not(.fc-day-disabled) {
+  cursor: pointer;
+}
+
+.fc .fc-daygrid-day:not(.fc-day-disabled):hover {
+  background-color: lightgray;
+} */
+
+.fc-solr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+/* .fc-event {
+  height: auto !important;
+} */

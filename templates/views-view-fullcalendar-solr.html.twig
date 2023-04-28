@@ -1,0 +1,20 @@
+{#
+/**
+ * Default theme implementation for Views to output a FullCalendar.
+ *
+ * Available variables:
+ * - options: View plugin style options:
+ *   - classes: CSS classes.
+ *
+ * @see template_preprocess_views_view_fullcalendar_solr()
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+  set classes = [
+    'views-view-fullcalendar-solr',
+    options.classes
+  ]
+%}
+<div{{ attributes.addClass(classes) }}></div>

@@ -1,0 +1,8 @@
+name: FullCalendar Solr
+type: module
+description: 'Provides a View display style that renders a Calendar compatible with Search Api'
+package: Views
+core_version_requirement: ^8 || ^9
+dependencies:
+  - drupal:views
+  - search_api:search_api

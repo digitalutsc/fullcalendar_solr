@@ -1,0 +1,20 @@
+libraries.fullcalendar:
+  remote: https://fullcalendar.io/
+  version: '6.1.5'
+  license:
+    name: MIT
+    url: https://github.com/fullcalendar/fullcalendar/blob/master/LICENSE.txt
+    gpl-compatible: true
+  js:
+    https://www.unpkg.com/fullcalendar@6.1.5/index.global.min.js: { type: external, minified: true }
+
+fullcalendar_solr:
+  css:
+    theme:
+      css/fullcalendar_view.css: {}
+  js:
+    js/fullcalendar_view.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - fullcalendar_solr/libraries.fullcalendar
