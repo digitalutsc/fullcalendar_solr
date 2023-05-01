@@ -46,11 +46,14 @@ function template_preprocess_views_view_fullcalendar_solr(array &$vars) {
   $vars['#attached']['library'][] = 'fullcalendar_solr/libraries.fullcalendar';
   $vars['#attached']['library'][] = 'fullcalendar_solr/fullcalendar_solr';
 
-  $fullcalendar_options = array_merge($vars['options']['fullcalendar_options'], ['events' => $vars['rows']['events']]);
+  $fullcalendar_options = $vars['options']['fullcalendar_options'];
+  $fullcalendar_options['events'] = $vars['rows']['events'];
+  
   $vars['#attached']['drupalSettings']['FullCalendarSolr'][] = [
     'options' => $fullcalendar_options,
     'years' => $vars['rows']['years'],
-    'day_url' => $vars['options']['day_url'],
+    'day_links' => $vars['options']['day_links'],
+    'day_path' => $vars['options']['day_path'],
     'embed_id' => $id,
     'processed' => FALSE,
   ];

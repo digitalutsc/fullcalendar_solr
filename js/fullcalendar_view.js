@@ -6,6 +6,8 @@
 (function ($) {
   drupalSettings.FullCalendarSolr.forEach(function (calendar, key) {
     if (calendar["processed"] != true) {
+
+      calendar["options"]["navLinks"] = calendar["day_links"];
       var calendarOptions = {
         ...getPresets(),
         ...calendar["options"],
@@ -17,7 +19,7 @@
             day: "2-digit",
           });
           if (window.fullcalendar.getEventById(date)) {
-            window.location.pathname = calendar["day_url"] + "/" + date;
+            window.location.pathname = calendar["day_path"] + "/" + date;
           }
         },
         navLinkHint: navLinkHint,

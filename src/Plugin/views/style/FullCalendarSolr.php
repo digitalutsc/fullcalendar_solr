@@ -69,19 +69,19 @@ class FullCalendarSolr extends StylePluginBase {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
+    // @todo organize these better
     $options['date'] = ['default' => ''];
     $options['type'] = ['default' => 'multiMonthYear'];
-
     $options['year_field'] = ['default' => ''];
-    $options['link_to_day'] = ['default' => TRUE];
-    $options['day_url'] = ['default' => '/calendar/day'];
+
+    $options['day_links'] = ['default' => TRUE];
+    $options['day_path'] = ['default' => ''];
 
     $options['fullcalendar_config'] = [
       'contains' => [
         'initialView' => ['default' => 'multiMonthYear'],
         'multiMonthMinWidth' => ['default' => 200],
         'multiMonthMaxColumns' => ['default' => 4],
-        // 'navLinks' => ['default' => true],
       ]
     ];
 
@@ -115,9 +115,10 @@ class FullCalendarSolr extends StylePluginBase {
       '#default_value' => $this->options['year_field'],
     ];
 
+    // @todo add more options
     $fullcalendar_displays = [
       'multiMonthYear' => $this->t('Year'),
-      'dayGridMonth' => $this->t('Month'),
+      // 'dayGridMonth' => $this->t('Month'),
     ];
 
     $form['type'] = [
@@ -132,6 +133,22 @@ class FullCalendarSolr extends StylePluginBase {
       '#type' => 'number',
       '#title' => t('Minimum month (pixel) width'),
       '#default_value' => $this->options['fullcalendar_config']['multiMonthMinWidth'],
+    ];
+
+    $form['day_links'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Day Links'),
+      '#default_value' => $this->options['day_links'],
+      '#description' => t('Link to a day view when a highlighted date is clicked.')
+    ];
+
+    // @todo make this required if day_links is true
+    $form['day_path'] = [
+      '#type' => 'textfield',
+      '#title' => t('Path to Day View'),
+      '#default_value' => $this->options['day_path'],
+      // '#disabled' => !$this->options['day_links'], // @todo need ajax callback
+      '#description' => t('The view with this path should be configured such that it has a contextual filter that expects a string date of the form YYYY-MM-DD. The contextual filter should be the last component of the path. E.g. if the path is "calendar/day", it will redirect to "calendar/day/YYYY-MM-DD".'),
     ];
 
     // Extra CSS classes.
@@ -209,7 +226,8 @@ class FullCalendarSolr extends StylePluginBase {
       '#view' => $this->view,
       '#options' => [
         'fullcalendar_options' => $this->options['fullcalendar_config'],
-        'day_url' => $this->options['day_url'],
+        'day_links' => $this->options['day_links'],
+        'day_path' => $this->options['day_path'],
       ],
       '#rows' => [
         'events' => ['events' => $events],
