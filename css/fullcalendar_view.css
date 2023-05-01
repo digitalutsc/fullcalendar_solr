@@ -13,8 +13,9 @@
   z-index: 7;
 } */
 
-.fc a[data-navlink]:hover {
+.fc a[data-navlink], .fc a[data-navlink]:hover {
   text-decoration: none;
+  color: inherit;
 }
 
 /* .fc-title {
