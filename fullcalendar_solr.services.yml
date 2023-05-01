@@ -1,4 +1,0 @@
-services:
-  Drupal\fullcalendar_solr\EventSubscriber\SolrQueryAlterEventSubscriber:
-    tags:
-      - { name: 'event_subscriber' }
