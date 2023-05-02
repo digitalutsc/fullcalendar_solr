@@ -3,7 +3,7 @@
   --fc-border-color: none;
 }
 
-.fc .fc-daygrid-day-frame {
+.views-view-fullcalendar-solr .fc-daygrid-day-frame {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,7 +13,9 @@
   z-index: 7;
 } */
 
-.fc a[data-navlink], .fc a[data-navlink]:hover {
+.views-view-fullcalendar-solr a[data-navlink],
+.views-view-fullcalendar-solr a[data-navlink]:hover,
+.views-view-fullcalendar-solr .fc-col-header-cell-cushion {
   text-decoration: none;
   color: inherit;
 }

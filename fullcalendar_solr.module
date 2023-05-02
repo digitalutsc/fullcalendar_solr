@@ -52,10 +52,9 @@ function template_preprocess_views_view_fullcalendar_solr(array &$vars) {
   $vars['#attached']['drupalSettings']['FullCalendarSolr'][] = [
     'options' => $fullcalendar_options,
     'years' => $vars['rows']['years'],
-    'day_links' => $vars['options']['day_links'],
-    'day_path' => $vars['options']['day_path'],
+    'nav_link_day' => $vars['options']['nav_link_day'],
     'embed_id' => $id,
-    'processed' => FALSE,
+    'init' => FALSE,
   ];
 }
 

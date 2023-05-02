@@ -69,19 +69,17 @@ class FullCalendarSolr extends StylePluginBase {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    // @todo organize these better
     $options['date'] = ['default' => ''];
-    $options['type'] = ['default' => 'multiMonthYear'];
     $options['year_field'] = ['default' => ''];
+    // $options['type'] = ['default' => 'year'];
 
-    $options['day_links'] = ['default' => TRUE];
-    $options['day_path'] = ['default' => ''];
-
-    $options['fullcalendar_config'] = [
+    $options['nav_link_day'] = ['default' => ''];
+    $options['fullcalendar_options'] = [
       'contains' => [
         'initialView' => ['default' => 'multiMonthYear'],
         'multiMonthMinWidth' => ['default' => 200],
         'multiMonthMaxColumns' => ['default' => 4],
+        'navLinks' => ['default' => FALSE]
       ]
     ];
 
@@ -97,56 +95,67 @@ class FullCalendarSolr extends StylePluginBase {
     $view_fields_labels = $this->displayHandler->getFieldLabels();
     $view_fields_labels = array_merge($initial_labels, $view_fields_labels);
 
+    $view_argument_labels = [];
+    foreach ($this->displayHandler->getHandlers('argument') as $id => $handler) {
+      $view_argument_labels[$id] = $handler->adminLabel();
+    }
+
     $form['date'] = [
       '#type' => 'select',
       '#title' => t('Date Field'),
       '#required' => TRUE,
       '#options' => $view_fields_labels,
-      '#description' => $this->t('The selected field should contain a string representing a date.'),
+      '#description' => $this->t('The selected field should contain a string representing a date in YYYY-MM-DD format.'),
       '#default_value' => $this->options['date'],
     ];
-
+    
     $form['year_field'] = [
       '#type' => 'select',
       '#title' => t('Year Field'),
       '#required' => TRUE,
-      '#options' => $view_fields_labels,
+      '#options' => $view_argument_labels,
       '#description' => $this->t('The selected field should contain a string or integer representing a date.'),
       '#default_value' => $this->options['year_field'],
     ];
 
     // @todo add more options
-    $fullcalendar_displays = [
-      'multiMonthYear' => $this->t('Year'),
-      // 'dayGridMonth' => $this->t('Month'),
-    ];
+    // $fullcalendar_displays = [
+    //   'multiMonthYear' => $this->t('Year'),
+    //   // 'dayGridMonth' => $this->t('Month'),
+    // ];
 
-    $form['type'] = [
-      '#type' => 'radios',
-      '#title' => t('Type of Calendar'),
-      '#required' => TRUE,
-      '#options' => $fullcalendar_displays,
-      '#default_value' => $this->options['type'],
-    ];
+    // $form['type'] = [
+    //   '#type' => 'radios',
+    //   '#title' => t('Type of Calendar'),
+    //   '#required' => TRUE,
+    //   '#options' => $fullcalendar_displays,
+    //   '#default_value' => $this->options['type'],
+    // ];
 
-    $form['fullcalendar_config']['multiMonthMinWidth'] = [
+    $form['fullcalendar_options']['multiMonthMinWidth'] = [
       '#type' => 'number',
       '#title' => t('Minimum month (pixel) width'),
-      '#default_value' => $this->options['fullcalendar_config']['multiMonthMinWidth'],
+      '#default_value' => $this->options['fullcalendar_options']['multiMonthMinWidth'],
     ];
 
-    $form['day_links'] = [
+    $form['fullcalendar_options']['multiMonthMaxColumns'] = [
+      '#type' => 'number',
+      '#title' => t('Maximum number of months per row in year view.'),
+      '#default_value' => $this->options['fullcalendar_options']['multiMonthMaxColumns'],
+    ];
+
+    $form['fullcalendar_options']['navLinks'] = [
       '#type' => 'checkbox',
-      '#title' => t('Day Links'),
-      '#default_value' => $this->options['day_links'],
+      '#title' => t('Navigation Links to Day View'),
+      '#default_value' => $this->options['fullcalendar_options']['navLinks'],
       '#description' => t('Link to a day view when a highlighted date is clicked.')
     ];
 
     // @todo make this required if day_links is true
-    $form['day_path'] = [
+    $form['nav_link_day'] = [
       '#type' => 'textfield',
       '#title' => t('Path to Day View'),
-      '#default_value' => $this->options['day_path'],
+      '#default_value' => $this->options['nav_link_day'],
       // '#disabled' => !$this->options['day_links'], // @todo need ajax callback
       '#description' => t('The view with this path should be configured such that it has a contextual filter that expects a string date of the form YYYY-MM-DD. The contextual filter should be the last component of the path. E.g. if the path is "calendar/day", it will redirect to "calendar/day/YYYY-MM-DD".'),
     ];
@@ -225,9 +234,8 @@ class FullCalendarSolr extends StylePluginBase {
       '#theme' => $this->themeFunctions(),
       '#view' => $this->view,
       '#options' => [
-        'fullcalendar_options' => $this->options['fullcalendar_config'],
-        'day_links' => $this->options['day_links'],
-        'day_path' => $this->options['day_path'],
+        'fullcalendar_options' => $this->options['fullcalendar_options'],
+        'nav_link_day' => $this->options['nav_link_day'],
       ],
       '#rows' => [
         'events' => ['events' => $events],
@@ -323,5 +331,13 @@ class FullCalendarSolr extends StylePluginBase {
         unset($conditions[$i]);
       }
     }
+  }
+
+  /**
+   * Should the output of the style plugin be rendered even if it's a empty view.
+   */
+  public function evenEmpty() {
+    // An empty calendar should be displayed if there are no calendar items.
+    return TRUE;
   }
 }
