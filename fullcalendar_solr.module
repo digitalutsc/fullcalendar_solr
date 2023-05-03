@@ -11,6 +11,8 @@ use Solarium\Core\Query\QueryInterface as SolariumQueryInterface;
 use Drupal\search_api\Query\QueryInterface as DrupalQueryInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\SettingsCommand;
 
 /**
  * Implements hook_theme().
@@ -38,33 +40,26 @@ function fullcalendar_solr_theme($existing, $type, $theme, $path) {
 function template_preprocess_views_view_fullcalendar_solr(array &$vars) {
   $view = $vars['view'];
 
-  // Set unique id attribute for the fullcalendar instance.
-  $id = Html::getId('fullcalendar_solr_' . $view->storage->id() . '_' . $view->current_display);
-  $vars['attributes'] = new Attribute(['id' => $id]);
-
   // Load libraries.
   $vars['#attached']['library'][] = 'fullcalendar_solr/libraries.fullcalendar';
   $vars['#attached']['library'][] = 'fullcalendar_solr/fullcalendar_solr';
 
   $fullcalendar_options = $vars['options']['fullcalendar_options'];
-  $fullcalendar_options['events'] = $vars['rows']['events'];
-  
+
+  // Pass the event and year data as JSON strings. If drupalSettings 
+  // already has values for these and we pass them as arrays, the 
+  // arrays will be merged instead of replaced (same behaviour as 
+  // merging two Javascript objects). 
+  // @link https://www.drupal.org/node/1911578
   $vars['#attached']['drupalSettings']['FullCalendarSolr'][] = [
     'options' => $fullcalendar_options,
-    'years' => $vars['rows']['years'],
-    'nav_link_day' => $vars['options']['nav_link_day'],
-    'embed_id' => $id,
-    'init' => FALSE,
+    'events' => json_encode($vars['rows']['events']),
+    'years' => json_encode($vars['rows']['years']),
+    'navLinkDay' => $vars['options']['nav_link_day'],
   ];
-}
 
-// function fullcalendar_solr_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
-//   if ($view->display->PluginID == 'theViewId') {
-//     $contextualFilterDate = $query->where[0]["conditions"][0]["value"][":node__field_airdate_date_field_airdate_date_value"];
-//     // Unset the default date filtering.
-//     unset($query->where[0]["conditions"][0]);
-//     // Add custom date filtering.
-//     $query->addWhere(0, 'node__field_myfield', $lowDateLimitWithTime, '>=');
-//     $query->addWhere(0, 'node__field_myfield', $highDateLimitWithTime, '<');
-//   }
-// }
+  // Set unique id and index attributes for the fullcalendar instance.
+  $id = Html::getId('fullcalendar_solr_' . $view->storage->id() . '_' . $view->current_display);
+  $key = array_key_last($vars['#attached']['drupalSettings']['FullCalendarSolr']);
+  $vars['attributes'] = new Attribute(['id' => $id, 'fc-solr-index' => $key]);
+}

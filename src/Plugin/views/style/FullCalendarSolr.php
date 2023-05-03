@@ -71,6 +71,7 @@ class FullCalendarSolr extends StylePluginBase {
 
     $options['date'] = ['default' => ''];
     $options['year_field'] = ['default' => ''];
+    $options['no_results'] = ['default' => FALSE];
     // $options['type'] = ['default' => 'year'];
 
     $options['nav_link_day'] = ['default' => ''];
@@ -160,6 +161,12 @@ class FullCalendarSolr extends StylePluginBase {
       '#description' => t('The view with this path should be configured such that it has a contextual filter that expects a string date of the form YYYY-MM-DD. The contextual filter should be the last component of the path. E.g. if the path is "calendar/day", it will redirect to "calendar/day/YYYY-MM-DD".'),
     ];
 
+    $form['no_results'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Display calendar even if there are no results.'),
+      '#default_value' => $this->options['no_results'],
+    ];
+
     // Extra CSS classes.
     $form['classes'] = [
       '#type' => 'textfield',
@@ -226,10 +233,10 @@ class FullCalendarSolr extends StylePluginBase {
     sort($years);
 
     // Skip theming if the view is being edited or previewed.
-    if ($this->view->preview) {
-      return '<pre>' . print_r($events, 1) . '</pre>';
-    }
-
+    // if ($this->view->preview) {
+    //   return '<pre>' . print_r($events, 1) . '</pre>';
+    // }
+    
     return [
       '#theme' => $this->themeFunctions(),
       '#view' => $this->view,
@@ -238,7 +245,7 @@ class FullCalendarSolr extends StylePluginBase {
         'nav_link_day' => $this->options['nav_link_day'],
       ],
       '#rows' => [
-        'events' => ['events' => $events],
+        'events' => $events,
         'years' => $years,
       ],
     ];
@@ -338,6 +345,6 @@ class FullCalendarSolr extends StylePluginBase {
    */
   public function evenEmpty() {
     // An empty calendar should be displayed if there are no calendar items.
-    return TRUE;
+    return $this->options['no_results'];
   }
 }
