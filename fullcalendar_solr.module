@@ -15,16 +15,16 @@ function fullcalendar_solr_theme($existing, $type, $theme, $path) {
   return [
     'views_view_fullcalendar_solr' => [
       'template' => 'views-view-fullcalendar-solr',
-      'variables' => []
-    ]
+      'variables' => [],
+    ],
   ];
 }
 
 /**
- * Prepares variables for the FullCalendar style template
- * 
+ * Prepares variables for the FullCalendar style template.
+ *
  * Default template: views-view-fullcalendar-solr.html.twig
- * 
+ *
  * @param array $vars
  *   An associative array containing:
  *   - view: A ViewExecutable object
@@ -40,10 +40,10 @@ function template_preprocess_views_view_fullcalendar_solr(array &$vars) {
 
   $fullcalendar_options = $vars['options']['fullcalendar_options'];
 
-  // Pass the event and year data as JSON strings. If drupalSettings 
-  // already has values for these and we pass them as arrays, the 
-  // arrays will be merged instead of replaced (same behaviour as 
-  // merging two Javascript objects). 
+  // Pass the event and year data as JSON strings. If drupalSettings
+  // already has values for these and we pass them as arrays, the
+  // arrays will be merged instead of replaced (same behaviour as
+  // merging two Javascript objects).
   // @link https://www.drupal.org/node/1911578
   $vars['#attached']['drupalSettings']['FullCalendarSolr'][] = [
     'options' => $fullcalendar_options,

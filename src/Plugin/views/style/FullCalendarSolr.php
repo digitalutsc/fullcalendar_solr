@@ -2,17 +2,16 @@
 
 namespace Drupal\fullcalendar_solr\Plugin\views\style;
 
-use DateTime;
 use Drupal\core\form\FormStateInterface;
-use Drupal\views\Plugin\views\style\StylePluginBase;
-use Drupal\search_api\Query\Query;
 use Drupal\search_api\Query\ConditionGroupInterface;
+use Drupal\search_api\Query\Query;
+use Drupal\views\Plugin\views\style\StylePluginBase;
 
 /**
  * Style plugin to render a FullCalendar instance compatible with Search API.
- * 
+ *
  * @ingroup views_style_plugins
- * 
+ *
  * @ViewsStyle(
  *   id = "fullcalendar_solr",
  *   title = @Translation("FullCalendar Solr"),
@@ -21,7 +20,6 @@ use Drupal\search_api\Query\ConditionGroupInterface;
  *   display_types = { "normal" }
  * )
  */
-
 class FullCalendarSolr extends StylePluginBase {
 
   /**
@@ -44,14 +42,13 @@ class FullCalendarSolr extends StylePluginBase {
     $options['year_field'] = ['default' => ''];
     $options['no_results'] = ['default' => FALSE];
     // $options['type'] = ['default' => 'year'];
-
     $options['nav_link_day'] = ['default' => ''];
     $options['fullcalendar_options'] = [
       'contains' => [
         'initialView' => ['default' => 'multiMonthYear'],
         'multiMonthMinWidth' => ['default' => 200],
         'multiMonthMaxColumns' => ['default' => 4],
-        'navLinks' => ['default' => FALSE]
+        'navLinks' => ['default' => FALSE],
       ]
     ];
 
@@ -120,7 +117,7 @@ class FullCalendarSolr extends StylePluginBase {
       '#type' => 'checkbox',
       '#title' => t('Navigation Links to Day View'),
       '#default_value' => $this->options['fullcalendar_options']['navLinks'],
-      '#description' => t('Link to a day view when a highlighted date is clicked.')
+      '#description' => t('Link to a day view when a highlighted date is clicked.'),
     ];
 
     // @todo make this required if day_links is true
@@ -128,7 +125,7 @@ class FullCalendarSolr extends StylePluginBase {
       '#type' => 'textfield',
       '#title' => t('Path to Day View'),
       '#default_value' => $this->options['nav_link_day'],
-      // '#disabled' => !$this->options['day_links'], // @todo need ajax callback
+      // '#disabled' => !$this->options['day_links'], // @todo add ajax callback
       '#description' => t('The view with this path should be configured such that it has a contextual filter that expects a string date of the form YYYY-MM-DD. The contextual filter should be the last component of the path. E.g. if the path is "calendar/day", it will redirect to "calendar/day/YYYY-MM-DD".'),
     ];
 
@@ -166,8 +163,9 @@ class FullCalendarSolr extends StylePluginBase {
     // property exception.
     $this->renderFields($this->view->result);
 
-    // Have to count the dates manually since Search API doesn't support aggregation,
-    // and grouping by date will group items with same date but different time separately.
+    // Have to count the dates manually since Search API doesn't support
+    // aggregation, and grouping by date will group items with same date
+    // but different time separately.
     $date_counts = [];
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
@@ -183,7 +181,7 @@ class FullCalendarSolr extends StylePluginBase {
     }
     unset($this->view->row_index);
 
-    // Format event data into the format required by the FullCalendar
+    // Format event data into the format required by the FullCalendar.
     $events = [];
     foreach ($date_counts as $date => $count) {
       // Set event id to the date since we have at most 1 event per day.
@@ -200,7 +198,7 @@ class FullCalendarSolr extends StylePluginBase {
     $years = [];
     foreach ($year_facets as $facet_data) {
       $years[] = trim($facet_data['filter'], '"');
-      // trim($facet_data['count'], '"') to get result count
+      // trim($facet_data['count'], '"') to get result count.
     }
     sort($years);
 
@@ -242,8 +240,9 @@ class FullCalendarSolr extends StylePluginBase {
       if (is_numeric($date_string)) {
         $date_string .= '-01-01';
       }
-      $date = new DateTime($date_string);
-    } catch (Exception $e) {
+      $date = new \DateTime($date_string);
+    }
+    catch (\Exception $e) {
       // Return NULL if the field didn't contain a parseable date string.
       $this->messenger()->addMessage($this->t('The date "@date" does not conform to a <a href="@php-manual">PHP supported date and time format</a>.', ['@date' => $date_string, '@php-manual' => 'http://php.net/manual/en/datetime.formats.php']));
       $date = NULL;
@@ -252,7 +251,7 @@ class FullCalendarSolr extends StylePluginBase {
   }
 
   /**
-   * Returns an array of facet data over all documents
+   * Returns an array of facet data over all documents.
    */
   protected function getYearFacets($year_field, $limit = -1, $min_count = 1, $missing = FALSE) {
     $year_facets = [];
@@ -267,7 +266,8 @@ class FullCalendarSolr extends StylePluginBase {
       $condition_group = $query->getConditionGroup();
       $this->deleteCondition($condition_group, $year_field, '=');
 
-      // If the query already has a search_api_facets entry, this will override it.
+      // If the query already has a search_api_facets entry,
+      // this will override it.
       $query->setOption('search_api_facets', [
         $year_field => [
           'field' => $year_field,
@@ -286,7 +286,7 @@ class FullCalendarSolr extends StylePluginBase {
   }
 
   /**
-   * Deletes the condition containing the given field and operator
+   * Deletes the condition containing the given field and operator.
    */
   protected function deleteCondition(&$condition_group, $field, $operator) {
     if (!isset($condition_group) || !isset($field)) {
@@ -295,23 +295,25 @@ class FullCalendarSolr extends StylePluginBase {
 
     $conditions = &$condition_group->getConditions();
     foreach ($conditions as $i => $condition) {
-      // Check if the condition contains the target field
+      // Check if the condition contains the target field.
       if (strpos($condition, $field) === FALSE) {
         continue;
       }
       if ($condition instanceof ConditionGroupInterface) {
         $this->deleteCondition($condition, $field, $operator);
-      } elseif ($condition->getField() === $field && $condition->getOperator() === $operator) {
+      }
+      elseif ($condition->getField() === $field && $condition->getOperator() === $operator) {
         unset($conditions[$i]);
       }
     }
   }
 
   /**
-   * Should the output of the style plugin be rendered even if it's a empty view.
+   * Should the output of the style plugin be rendered even if view is empty.
    */
   public function evenEmpty() {
     // An empty calendar should be displayed if there are no calendar items.
     return $this->options['no_results'];
   }
+
 }
