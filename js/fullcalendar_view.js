@@ -7,15 +7,14 @@
   Drupal.behaviors.fullCalendarSolr = {
     attach: function (context, settings) {
       $('.views-view-fullcalendar-solr').once('fullCalendarSolr').each(function () {
-        var calendarIndex = parseInt(this.getAttribute('fc-solr-index'));
         if (!drupalSettings.calendars) {
           drupalSettings.calendars = [];
         }
         // Remove existing calendar
+        var calendarIndex = parseInt(this.getAttribute('fc-solr-index'));
         if (drupalSettings.calendars[calendarIndex]) {
           drupalSettings.calendars[calendarIndex].destroy();
         }
-
         // Build calendar options
         var calendarSettings = drupalSettings.FullCalendarSolr[calendarIndex];
         var calendarOptions = {
@@ -65,6 +64,10 @@
           });
       });
 
+      /**
+       * Provides default options for creating a FullCalendar instance
+       * @returns an object containing FullCalendar options
+       */
       function getPresets() {
         var presetOptions = {
           initialView: 'multiMonthYear',
@@ -79,7 +82,7 @@
       }
 
       /**
-       * Converts a date object into a YYYY-MM-DD string
+       * Converts a date object into a YYYY-MM-DD string.
        * @param {Date} dateObj a date object
        * @returns a date string formatted as YYYY-MM-DD
        */
@@ -92,6 +95,13 @@
         return date;
       }
 
+      /**
+       * Builds a custom header for the FullCalendar.
+       * @param {Array} years year options to display in the year dropdown
+       * @param {string} selectedYear the default year of the dropdown
+       * @param {string} labelTemplate template for the header text
+       * @returns a string containing HTML
+       */
       function buildHeader(years, selectedYear, labelTemplate = 'All issues for {year}') {
         var headerLabel = '<h3 class="fc-solr-header-label">' + labelTemplate.replace('{year}', selectedYear) + '</h3>';
         // Build year dropdown
