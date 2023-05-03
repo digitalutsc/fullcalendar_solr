@@ -7,12 +7,6 @@
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template\Attribute;
-use Solarium\Core\Query\QueryInterface as SolariumQueryInterface;
-use Drupal\search_api\Query\QueryInterface as DrupalQueryInterface;
-use Drupal\views\ViewExecutable;
-use Drupal\views\Plugin\views\query\QueryPluginBase;
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\SettingsCommand;
 
 /**
  * Implements hook_theme().

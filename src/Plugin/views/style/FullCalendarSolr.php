@@ -2,14 +2,9 @@
 
 namespace Drupal\fullcalendar_solr\Plugin\views\style;
 
-// @todo remove unused imports
 use DateTime;
 use Drupal\core\form\FormStateInterface;
 use Drupal\views\Plugin\views\style\StylePluginBase;
-use Drupal\fullcalendar_solr\FullCalendar\FullCalendar;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Config\ImmutableConfig;
-use Drupal\facets\FacetManager\DefaultFacetManager;
 use Drupal\search_api\Query\Query;
 use Drupal\search_api\Query\ConditionGroupInterface;
 
@@ -38,30 +33,6 @@ class FullCalendarSolr extends StylePluginBase {
    * {@inheritdoc}
    */
   protected $usesGrouping = FALSE;
-
-  /**
-   * Constructs a FullCalendarSolr object.
-   *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
-   * @param \Drupal\Core\Config\ImmutableConfig $module_configuration
-   *   The Views TimelineJS module's configuration.
-   */
-  // public function __construct(array $configuration, $plugin_id, $plugin_definition, ImmutableConfig $module_configuration, DefaultFacetManager $facets_manager) {
-  //   parent::__construct($configuration, $plugin_id, $plugin_definition);
-  // }
-
-  /**
-   * {@inheritdoc}
-   */
-  // public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-  //   $module_configuration = $container->get('config.factory')->get('fullcalendar_solr.settings');
-  //   return new static($configuration, $plugin_id, $plugin_definition, $module_configuration);
-  // }
 
   /**
    * {@inheritdoc}
@@ -109,7 +80,7 @@ class FullCalendarSolr extends StylePluginBase {
       '#description' => $this->t('The selected field should contain a string representing a date in YYYY-MM-DD format.'),
       '#default_value' => $this->options['date'],
     ];
-    
+
     $form['year_field'] = [
       '#type' => 'select',
       '#title' => t('Year Field'),
@@ -215,8 +186,9 @@ class FullCalendarSolr extends StylePluginBase {
     // Format event data into the format required by the FullCalendar
     $events = [];
     foreach ($date_counts as $date => $count) {
+      // Set event id to the date since we have at most 1 event per day.
       $events[] = [
-        'id' => $date, // Set event id to the date since we have at most 1 events per day.
+        'id' => $date,
         'start' => $date,
         'count' => $count,
       ];
@@ -232,11 +204,6 @@ class FullCalendarSolr extends StylePluginBase {
     }
     sort($years);
 
-    // Skip theming if the view is being edited or previewed.
-    // if ($this->view->preview) {
-    //   return '<pre>' . print_r($events, 1) . '</pre>';
-    // }
-    
     return [
       '#theme' => $this->themeFunctions(),
       '#view' => $this->view,
@@ -314,7 +281,7 @@ class FullCalendarSolr extends StylePluginBase {
       $query->getIndex()->getServerInstance()->search($query);
       $year_facets = $query->getResults()->getExtraData('search_api_facets', [])[$year_field] ?? [];
     }
-    // @todo Should this through an exception if the server doesn't support search_api_facets?
+    // @todo Should this throw an exception if the server doesn't support search_api_facets?
     return $year_facets;
   }
 
