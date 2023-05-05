@@ -38,11 +38,13 @@ class FullCalendarSolr extends StylePluginBase {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    $options['date'] = ['default' => ''];
+    $options['date_field'] = ['default' => ''];
     $options['year_field'] = ['default' => ''];
-    $options['no_results'] = ['default' => FALSE];
-    // $options['type'] = ['default' => 'year'];
-    $options['nav_link_day'] = ['default' => ''];
+    $options['custom_options'] = [
+      'contains' => [
+        'no_results' => ['default' => FALSE],
+      ]
+    ];
     $options['fullcalendar_options'] = [
       'contains' => [
         'initialView' => ['default' => 'multiMonthYear'],
@@ -60,22 +62,20 @@ class FullCalendarSolr extends StylePluginBase {
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
-    $initial_labels = ['' => $this->t('- None -')];
+    
     $view_fields_labels = $this->displayHandler->getFieldLabels();
-    $view_fields_labels = array_merge($initial_labels, $view_fields_labels);
-
     $view_argument_labels = [];
     foreach ($this->displayHandler->getHandlers('argument') as $id => $handler) {
       $view_argument_labels[$id] = $handler->adminLabel();
     }
 
-    $form['date'] = [
+    $form['date_field'] = [
       '#type' => 'select',
       '#title' => t('Date Field'),
       '#required' => TRUE,
       '#options' => $view_fields_labels,
       '#description' => $this->t('The selected field should contain a string representing a date in YYYY-MM-DD format.'),
-      '#default_value' => $this->options['date'],
+      '#default_value' => $this->options['date_field'],
     ];
 
     $form['year_field'] = [
@@ -83,7 +83,7 @@ class FullCalendarSolr extends StylePluginBase {
       '#title' => t('Year Field'),
       '#required' => TRUE,
       '#options' => $view_argument_labels,
-      '#description' => $this->t('The selected field should contain a string or integer representing a date.'),
+      '#description' => $this->t('The selected field should contain a string or integer representing a year in YYYY format.'),
       '#default_value' => $this->options['year_field'],
     ];
 
@@ -117,22 +117,13 @@ class FullCalendarSolr extends StylePluginBase {
       '#type' => 'checkbox',
       '#title' => t('Navigation Links to Day View'),
       '#default_value' => $this->options['fullcalendar_options']['navLinks'],
-      '#description' => t('Link to a day view when a highlighted date is clicked.'),
+      '#description' => t('Link to a day view when a highlighted date is clicked. The day view must have the same path as this view except the last component should be "day" instead of "year". i.e. if this view has path "a/b/c/year", then the day view should have path "a/b/c/day".'),
     ];
 
-    // @todo make this required if day_links is true
-    $form['nav_link_day'] = [
-      '#type' => 'textfield',
-      '#title' => t('Path to Day View'),
-      '#default_value' => $this->options['nav_link_day'],
-      // '#disabled' => !$this->options['day_links'], // @todo add ajax callback
-      '#description' => t('The view with this path should be configured such that it has a contextual filter that expects a string date of the form YYYY-MM-DD. The contextual filter should be the last component of the path. E.g. if the path is "calendar/day", it will redirect to "calendar/day/YYYY-MM-DD".'),
-    ];
-
-    $form['no_results'] = [
+    $form['custom_options']['no_results'] = [
       '#type' => 'checkbox',
       '#title' => t('Display calendar even if there are no results.'),
-      '#default_value' => $this->options['no_results'],
+      '#default_value' => $this->options['custom_options']['no_results'],
     ];
 
     // Extra CSS classes.
@@ -148,13 +139,16 @@ class FullCalendarSolr extends StylePluginBase {
    * {@inheritdoc}
    */
   public function render() {
-    if (empty($this->options['date'])) {
+    if (empty($this->options['date_field'])) {
       $this->messenger()->addWarning(t('The Date field mapping cannot be empty in FullCalendar Solr format settings.'));
       return;
     }
-    // @todo should this be optional?
     if (empty($this->options['year_field'])) {
       $this->messenger()->addWarning(t('The Year field mapping cannot be empty in FullCalendar Solr format settings.'));
+      return;
+    }
+    if (!in_array('year', explode('/', $this->view->getPath()))) {
+      $this->messenger()->addWarning(t('The view path must contain "year" as the last component.'));
       return;
     }
 
@@ -169,7 +163,7 @@ class FullCalendarSolr extends StylePluginBase {
     $date_counts = [];
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
-      $date = $this->buildDate($this->options['date']);
+      $date = $this->buildDate($this->options['date_field']);
       if (empty($date)) {
         continue;
       }
@@ -181,18 +175,29 @@ class FullCalendarSolr extends StylePluginBase {
     }
     unset($this->view->row_index);
 
+    // Create the path to the day view.
+    $path = explode('/', $this->view->getUrl()->toString());
+    $year_index = array_search('year', $path);
+    $day_path = array_slice($path, 0, $year_index);
+    $day_path[] = 'day';
+    $day_path = implode('/', $day_path);
+
     // Format event data into the format required by the FullCalendar.
     $events = [];
     foreach ($date_counts as $date => $count) {
       // Set event id to the date since we have at most 1 event per day.
-      $events[] = [
+      $event = [
         'id' => $date,
         'start' => $date,
         'count' => $count,
       ];
+      if ($this->options['fullcalendar_options']['navLinks']) {
+        $event['url'] = $day_path . '/' . $date;
+      }
+      $events[] = $event;
     }
 
-    // \Drupal::logger("hi")->notice(json_encode(array_keys($this->view->argument))); // contextual filter field names
+    // Get list of years with search results.
     $year_field = $this->options['year_field'];
     $year_facets = $this->getYearFacets($year_field);
     $years = [];
@@ -207,7 +212,6 @@ class FullCalendarSolr extends StylePluginBase {
       '#view' => $this->view,
       '#options' => [
         'fullcalendar_options' => $this->options['fullcalendar_options'],
-        'nav_link_day' => $this->options['nav_link_day'],
       ],
       '#rows' => [
         'events' => $events,
@@ -241,8 +245,7 @@ class FullCalendarSolr extends StylePluginBase {
         $date_string .= '-01-01';
       }
       $date = new \DateTime($date_string);
-    }
-    catch (\Exception $e) {
+    } catch (\Exception $e) {
       // Return NULL if the field didn't contain a parseable date string.
       $this->messenger()->addMessage($this->t('The date "@date" does not conform to a <a href="@php-manual">PHP supported date and time format</a>.', ['@date' => $date_string, '@php-manual' => 'http://php.net/manual/en/datetime.formats.php']));
       $date = NULL;
@@ -301,8 +304,7 @@ class FullCalendarSolr extends StylePluginBase {
       }
       if ($condition instanceof ConditionGroupInterface) {
         $this->deleteCondition($condition, $field, $operator);
-      }
-      elseif ($condition->getField() === $field && $condition->getOperator() === $operator) {
+      } elseif ($condition->getField() === $field && $condition->getOperator() === $operator) {
         unset($conditions[$i]);
       }
     }
@@ -313,7 +315,6 @@ class FullCalendarSolr extends StylePluginBase {
    */
   public function evenEmpty() {
     // An empty calendar should be displayed if there are no calendar items.
-    return $this->options['no_results'];
+    return $this->options['custom_options']['no_results'];
   }
-
 }

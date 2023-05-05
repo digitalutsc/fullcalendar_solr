@@ -9,9 +9,13 @@
   align-items: center;
 }
 
-.views-view-fullcalendar-solr a[data-navlink],
-.views-view-fullcalendar-solr a[data-navlink]:hover,
-.views-view-fullcalendar-solr .fc-col-header-cell-cushion {
+.views-view-fullcalendar-solr
+  :is(
+    a[data-navlink],
+    a[data-navlink]:hover,
+    .fc-col-header-cell-cushion,
+    .fc-daygrid-day-number
+  ) {
   text-decoration: none;
   color: inherit;
 }

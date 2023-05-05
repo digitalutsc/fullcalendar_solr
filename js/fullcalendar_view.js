@@ -26,14 +26,14 @@
         // Check if navLinks are enabled
         if (calendarSettings['options']['navLinks']) {
           calendarOptions.navLinkDayClick = function (dateObj, jsEvent) {
-            // Convert to YYYY-MM-DD format
             date = formatDate(dateObj);
-            if (drupalSettings.calendars[calendarIndex].getEventById(date)) {
-              window.location.pathname = calendarSettings['navLinkDay'] + '/' + date;
+            var event = drupalSettings.calendars[calendarIndex].getEventById(date);
+            if (event && event.url) {
+              var resultsPage = event.url + window.location.search;
+              window.open(resultsPage);
             }
           };
           calendarOptions.navLinkHint = function (dateText, dateObj) {
-            // Convert to YYYY-MM-DD format
             date = formatDate(dateObj);
             var targetEvent = drupalSettings.calendars[calendarIndex].getEventById(date);
             if (!targetEvent || isNaN(targetEvent.extendedProps.count) || targetEvent.extendedProps.count <= 0) {
@@ -53,15 +53,18 @@
           calendarOptions
         );
         drupalSettings.calendars[calendarIndex].render();
-        drupalSettings.calendars[calendarIndex].gotoDate(getUrlYear());
 
-        // Build custom header with year dropdown
-        $(this).find('.fc-solr-header').empty()
-          .append(buildHeader(JSON.parse(calendarSettings['years']), getUrlYear()))
-          .change(function () {
-            var selectedYear = $('select').val();
-            redirectYear(selectedYear);
-          });
+        var selectedYear = getUrlYear();
+        if (selectedYear) {
+          drupalSettings.calendars[calendarIndex].gotoDate(selectedYear);
+          // Build custom header with year dropdown
+          $(this).find('.fc-solr-header').empty()
+            .append(buildHeader(JSON.parse(calendarSettings['years']), selectedYear))
+            .change(function () {
+              var selectedYear = $('select').val();
+              redirectYear(selectedYear);
+            });
+        }
       });
 
       /**
@@ -103,35 +106,49 @@
        * @returns a string containing HTML
        */
       function buildHeader(years, selectedYear, labelTemplate = 'All issues for {year}') {
-        var headerLabel = '<h3 class="fc-solr-header-label">' + labelTemplate.replace('{year}', selectedYear) + '</h3>';
-        // Build year dropdown
+        // If there are no years with results, don't build the header.
+        if (!selectedYear || !Array.isArray(years) || years.length <= 0) {
+          return '';
+        }
+        // Build year dropdown.
         var yearOptions = [];
-        if (!Array.isArray(years) || years.length <= 0) {
-          yearOptions.push('<option selected value="">No Results</option>');
-        }
-        else {
-          years.forEach((year) => {
-            if (year == selectedYear) {
-              yearOptions.push('<option selected value="' + year + '">' + year + '</option>');
-            }
-            else {
-              yearOptions.push('<option value="' + year + '">' + year + '</option>');
-            }
-          });
-        }
+        years.forEach((year) => {
+          if (year === selectedYear) {
+            yearOptions.push('<option selected value="' + year + '">' + year + '</option>');
+          }
+          else {
+            yearOptions.push('<option value="' + year + '">' + year + '</option>');
+          }
+        });
+        var headerLabel = '<h3 class="fc-solr-header-label">' + labelTemplate.replace('{year}', selectedYear) + '</h3>';
         var yearSelect = '<select class="fc-solr-year-dropdown">' + yearOptions.join('\n') + '</select>';
         return headerLabel + yearSelect;
       }
 
+      /**
+       * Redirects the URL to the selected year.
+       * @param {string|number} selectedYear
+       */
       function redirectYear(selectedYear) {
         var urlPath = window.location.pathname.split('/');
-        urlPath[urlPath.length - 1] = selectedYear;
-        window.location.pathname = urlPath.join('/');
+        var yearIdx = urlPath.lastIndexOf('year');
+        if (yearIdx !== -1) {
+          urlPath[yearIdx + 1] = selectedYear;
+          window.location.pathname = urlPath.join('/');
+        }
       }
 
+      /**
+       * Gets the selected year from the URL.
+       * @returns {string|null} the year in the URL, if any
+       */
       function getUrlYear() {
         var urlPath = window.location.pathname.split('/');
-        return urlPath[urlPath.length - 1];
+        var year = urlPath[urlPath.length - 1];
+        if (isNaN(year)) {
+          return null;
+        }
+        return year;
       }
     },
   };
