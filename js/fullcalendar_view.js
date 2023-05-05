@@ -110,6 +110,10 @@
         if (!selectedYear || !Array.isArray(years) || years.length <= 0) {
           return '';
         }
+        if (!years.includes(selectedYear)) {
+          years.push(selectedYear);
+          years.sort();
+        }
         // Build year dropdown.
         var yearOptions = [];
         years.forEach((year) => {
