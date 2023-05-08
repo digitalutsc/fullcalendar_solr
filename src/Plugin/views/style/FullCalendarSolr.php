@@ -4,7 +4,6 @@ namespace Drupal\fullcalendar_solr\Plugin\views\style;
 
 use Drupal\core\form\FormStateInterface;
 use Drupal\search_api\Query\ConditionGroupInterface;
-use Drupal\search_api\Query\Query;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 
 /**
@@ -43,7 +42,7 @@ class FullCalendarSolr extends StylePluginBase {
     $options['custom_options'] = [
       'contains' => [
         'no_results' => ['default' => FALSE],
-      ]
+      ],
     ];
     $options['fullcalendar_options'] = [
       'contains' => [
@@ -51,7 +50,7 @@ class FullCalendarSolr extends StylePluginBase {
         'multiMonthMinWidth' => ['default' => 200],
         'multiMonthMaxColumns' => ['default' => 4],
         'navLinks' => ['default' => FALSE],
-      ]
+      ],
     ];
 
     return $options;
@@ -62,7 +61,7 @@ class FullCalendarSolr extends StylePluginBase {
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
-    
+
     $view_fields_labels = $this->displayHandler->getFieldLabels();
     $view_argument_labels = [];
     foreach ($this->displayHandler->getHandlers('argument') as $id => $handler) {
@@ -86,20 +85,6 @@ class FullCalendarSolr extends StylePluginBase {
       '#description' => $this->t('The selected field should contain a string or integer representing a year in YYYY format.'),
       '#default_value' => $this->options['year_field'],
     ];
-
-    // @todo add more options
-    // $fullcalendar_displays = [
-    //   'multiMonthYear' => $this->t('Year'),
-    //   // 'dayGridMonth' => $this->t('Month'),
-    // ];
-
-    // $form['type'] = [
-    //   '#type' => 'radios',
-    //   '#title' => t('Type of Calendar'),
-    //   '#required' => TRUE,
-    //   '#options' => $fullcalendar_displays,
-    //   '#default_value' => $this->options['type'],
-    // ];
 
     $form['fullcalendar_options']['multiMonthMinWidth'] = [
       '#type' => 'number',
@@ -245,7 +230,8 @@ class FullCalendarSolr extends StylePluginBase {
         $date_string .= '-01-01';
       }
       $date = new \DateTime($date_string);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       // Return NULL if the field didn't contain a parseable date string.
       $this->messenger()->addMessage($this->t('The date "@date" does not conform to a <a href="@php-manual">PHP supported date and time format</a>.', ['@date' => $date_string, '@php-manual' => 'http://php.net/manual/en/datetime.formats.php']));
       $date = NULL;
@@ -254,18 +240,37 @@ class FullCalendarSolr extends StylePluginBase {
   }
 
   /**
-   * Returns an array of facet data over all documents.
+   * Gets facet data for the specified year field.
+   *
+   * The conditions of the query executed by the view are preserved except for
+   * the given year field. This gives us a list of all years that have results.
+   *
+   * @param string $year_field
+   *   The Search API field ID of the year field to facet on.
+   * @param int|null $limit
+   *   The maximum number of filters to retrive for the facet.
+   * @param int|null $min_count
+   *   The minimum count a filter/value must have been returned.
+   * @param bool|null $missing
+   *   Whether to retrive a facet for "missing" values.
    */
   protected function getYearFacets($year_field, $limit = -1, $min_count = 1, $missing = FALSE) {
     $year_facets = [];
+
+    /** @var \Drupal\search_api\IndexInterface $index */
     $index = $this->view->query->getIndex();
+
+    /** @var \Drupal\search_api\ServerInterface|null $server */
     $server = $index->getServerInstance();
+
     if ($server->supportsFeature('search_api_facets')) {
       // Copy of the query executed by view.
+      /** @var \Drupal\search_api\Query\QueryInterface|null $query */
       $query = clone $this->view->query->getSearchApiQuery();
       $query->range(0, 0);
 
       // Remove existing condition filtering by year.
+      /** @var \Drupal\search_api\Query\ConditionGroupInterface $condition_group */
       $condition_group = $query->getConditionGroup();
       $this->deleteCondition($condition_group, $year_field, '=');
 
@@ -290,12 +295,20 @@ class FullCalendarSolr extends StylePluginBase {
 
   /**
    * Deletes the condition containing the given field and operator.
+   *
+   * @param \Drupal\search_api\Query\ConditionGroupInterface $condition_group
+   *   The condition group object.
+   * @param string $field
+   *   The target field.
+   * @param string $operator
+   *   The target operator.
    */
   protected function deleteCondition(&$condition_group, $field, $operator) {
     if (!isset($condition_group) || !isset($field)) {
       return;
     }
 
+    /** @var \Drupal\search_api\Query\ConditionInterface[]|\Drupal\search_api\Query\ConditionGroupInterface[] $conditions */
     $conditions = &$condition_group->getConditions();
     foreach ($conditions as $i => $condition) {
       // Check if the condition contains the target field.
@@ -304,17 +317,19 @@ class FullCalendarSolr extends StylePluginBase {
       }
       if ($condition instanceof ConditionGroupInterface) {
         $this->deleteCondition($condition, $field, $operator);
-      } elseif ($condition->getField() === $field && $condition->getOperator() === $operator) {
+      }
+      elseif ($condition->getField() === $field && $condition->getOperator() === $operator) {
         unset($conditions[$i]);
       }
     }
   }
 
   /**
-   * Should the output of the style plugin be rendered even if view is empty.
+   * {@inheritdoc}
    */
   public function evenEmpty() {
     // An empty calendar should be displayed if there are no calendar items.
     return $this->options['custom_options']['no_results'];
   }
+
 }

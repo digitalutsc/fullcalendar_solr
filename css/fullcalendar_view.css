@@ -9,13 +9,10 @@
   align-items: center;
 }
 
-.views-view-fullcalendar-solr
-  :is(
-    a[data-navlink],
-    a[data-navlink]:hover,
-    .fc-col-header-cell-cushion,
-    .fc-daygrid-day-number
-  ) {
+.views-view-fullcalendar-solr :is(a[data-navlink],
+a[data-navlink]:hover,
+.fc-col-header-cell-cushion,
+.fc-daygrid-day-number) {
   text-decoration: none;
   color: inherit;
 }
@@ -23,14 +20,6 @@
 .views-view-fullcalendar-solr .fc-title {
   visibility: hidden;
 }
-
-/* .fc .fc-daygrid-day:not(.fc-day-disabled) {
-  cursor: pointer;
-}
-
-.fc .fc-daygrid-day:not(.fc-day-disabled):hover {
-  background-color: lightgray;
-} */
 
 .fc-solr-header {
   display: flex;

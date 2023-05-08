@@ -29,7 +29,7 @@ function fullcalendar_solr_theme($existing, $type, $theme, $path) {
  *   An associative array containing:
  *   - view: A ViewExecutable object
  *   - rows: The raw row data
- *   - fullcalendar_options: FullCalendar presentation options
+ *   - options: FullCalendar presentation options
  */
 function template_preprocess_views_view_fullcalendar_solr(array &$vars) {
   $view = $vars['view'];
