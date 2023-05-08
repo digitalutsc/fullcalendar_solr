@@ -6,7 +6,7 @@
 (function ($) {
   Drupal.behaviors.fullCalendarSolr = {
     attach: function (context, settings) {
-      $('.views-view-fullcalendar-solr').once('fullCalendarSolr').each(function () {
+      $(once('fullCalendarSolr', '.views-view-fullcalendar-solr', context)).each(function () {
         if (!drupalSettings.calendars) {
           drupalSettings.calendars = [];
         }

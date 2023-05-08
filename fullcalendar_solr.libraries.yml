@@ -15,6 +15,7 @@ fullcalendar_solr:
   js:
     js/fullcalendar_view.js: {}
   dependencies:
+    - core/once
     - core/jquery
     - core/drupalSettings
     - fullcalendar_solr/libraries.fullcalendar
