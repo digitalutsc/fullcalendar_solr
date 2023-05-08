@@ -49,7 +49,6 @@ function template_preprocess_views_view_fullcalendar_solr(array &$vars) {
     'options' => $fullcalendar_options,
     'events' => json_encode($vars['rows']['events']),
     'years' => json_encode($vars['rows']['years']),
-    'navLinkDay' => $vars['options']['nav_link_day'],
   ];
 
   // Set unique id and index attributes for the fullcalendar instance.
