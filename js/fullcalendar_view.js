@@ -54,12 +54,16 @@
         );
         drupalSettings.calendars[calendarIndex].render();
 
+        var years = JSON.parse(calendarSettings['years']);
         var selectedYear = getUrlYear();
-        if (selectedYear) {
+        if (!selectedYear) {
+          selectedYear = years[0];
+        }
+        if (selectedYear && !isNaN(selectedYear)) {
           drupalSettings.calendars[calendarIndex].gotoDate(selectedYear);
           // Build custom header with year dropdown
           $(this).find('.fc-solr-header').empty()
-            .append(buildHeader(JSON.parse(calendarSettings['years']), selectedYear, calendarSettings['headerText']))
+            .append(buildHeader(years, selectedYear, calendarSettings['headerText']))
             .change(function () {
               var selectedYear = $('select').val();
               redirectYear(selectedYear);
@@ -106,8 +110,8 @@
        * @returns a string containing HTML
        */
       function buildHeader(years, selectedYear, labelTemplate) {
-        // If there are no years with results, don't build the header.
-        if (!selectedYear || !Array.isArray(years) || years.length <= 0) {
+        // If no selected year and no years with results, don't build the header.
+        if (!selectedYear && (!Array.isArray(years) || years.length <= 0)) {
           return '';
         }
         if (!years.includes(selectedYear)) {
