@@ -59,7 +59,7 @@
           drupalSettings.calendars[calendarIndex].gotoDate(selectedYear);
           // Build custom header with year dropdown
           $(this).find('.fc-solr-header').empty()
-            .append(buildHeader(JSON.parse(calendarSettings['years']), selectedYear))
+            .append(buildHeader(JSON.parse(calendarSettings['years']), selectedYear, calendarSettings['headerText']))
             .change(function () {
               var selectedYear = $('select').val();
               redirectYear(selectedYear);
@@ -105,7 +105,7 @@
        * @param {string} labelTemplate template for the header text
        * @returns a string containing HTML
        */
-      function buildHeader(years, selectedYear, labelTemplate = 'All issues for {year}') {
+      function buildHeader(years, selectedYear, labelTemplate) {
         // If there are no years with results, don't build the header.
         if (!selectedYear || !Array.isArray(years) || years.length <= 0) {
           return '';
@@ -124,7 +124,7 @@
             yearOptions.push('<option value="' + year + '">' + year + '</option>');
           }
         });
-        var headerLabel = '<h3 class="fc-solr-header-label">' + labelTemplate.replace('{year}', selectedYear) + '</h3>';
+        var headerLabel = '<h3 class="fc-solr-header-label">' + labelTemplate.replace('$year', selectedYear) + '</h3>';
         var yearSelect = '<select class="fc-solr-year-dropdown">' + yearOptions.join('\n') + '</select>';
         return headerLabel + yearSelect;
       }

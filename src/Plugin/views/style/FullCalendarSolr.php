@@ -39,11 +39,8 @@ class FullCalendarSolr extends StylePluginBase {
 
     $options['date_field'] = ['default' => ''];
     $options['year_field'] = ['default' => ''];
-    $options['custom_options'] = [
-      'contains' => [
-        'no_results' => ['default' => FALSE],
-      ],
-    ];
+    $options['no_results'] = ['default' => FALSE];
+    $options['header_text'] = ['default' => 'All issues for $year'];
     $options['fullcalendar_options'] = [
       'contains' => [
         'initialView' => ['default' => 'multiMonthYear'],
@@ -82,8 +79,15 @@ class FullCalendarSolr extends StylePluginBase {
       '#title' => t('Year Field'),
       '#required' => TRUE,
       '#options' => $view_argument_labels,
-      '#description' => $this->t('The selected field should contain a string or integer representing a year in YYYY format.'),
+      '#description' => t('The selected field should contain a string or integer representing a year in YYYY format.'),
       '#default_value' => $this->options['year_field'],
+    ];
+
+    $form['header_text'] = [
+      '#type' => 'textfield',
+      '#title' => t('Header Text Template'),
+      '#description' => t('Available placeholders: $year'),
+      '#default_value' => $this->options['header_text'],
     ];
 
     $form['fullcalendar_options']['multiMonthMinWidth'] = [
@@ -105,10 +109,10 @@ class FullCalendarSolr extends StylePluginBase {
       '#description' => t('Link to a day view when a highlighted date is clicked. The day view must have the same path as this view except the last component should be "day" instead of "year". i.e. if this view has path "a/b/c/year", then the day view should have path "a/b/c/day".'),
     ];
 
-    $form['custom_options']['no_results'] = [
+    $form['no_results'] = [
       '#type' => 'checkbox',
       '#title' => t('Display calendar even if there are no results.'),
-      '#default_value' => $this->options['custom_options']['no_results'],
+      '#default_value' => $this->options['no_results'],
     ];
 
     // Extra CSS classes.
@@ -197,6 +201,7 @@ class FullCalendarSolr extends StylePluginBase {
       '#view' => $this->view,
       '#options' => [
         'fullcalendar_options' => $this->options['fullcalendar_options'],
+        'header_text' => $this->options['header_text'],
       ],
       '#rows' => [
         'events' => $events,
@@ -329,7 +334,7 @@ class FullCalendarSolr extends StylePluginBase {
    */
   public function evenEmpty() {
     // An empty calendar should be displayed if there are no calendar items.
-    return $this->options['custom_options']['no_results'];
+    return $this->options['no_results'];
   }
 
 }

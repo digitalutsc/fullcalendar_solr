@@ -47,6 +47,7 @@ function template_preprocess_views_view_fullcalendar_solr(array &$vars) {
   // @link https://www.drupal.org/node/1911578
   $vars['#attached']['drupalSettings']['FullCalendarSolr'][] = [
     'options' => $fullcalendar_options,
+    'headerText' => $vars['options']['header_text'],
     'events' => json_encode($vars['rows']['events']),
     'years' => json_encode($vars['rows']['years']),
   ];
