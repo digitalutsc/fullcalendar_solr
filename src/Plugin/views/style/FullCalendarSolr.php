@@ -59,8 +59,11 @@ class FullCalendarSolr extends StylePluginBase {
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
 
+    $initial_labels = ['' => $this->t('- None -')];
     $view_fields_labels = $this->displayHandler->getFieldLabels();
-    $view_argument_labels = [];
+    $view_fields_labels = array_merge($initial_labels, $view_fields_labels);
+
+    $view_argument_labels = ['' => $this->t('- None -')];
     foreach ($this->displayHandler->getHandlers('argument') as $id => $handler) {
       $view_argument_labels[$id] = $handler->adminLabel();
     }
