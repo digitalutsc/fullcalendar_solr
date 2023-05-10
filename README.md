@@ -54,7 +54,8 @@ for that day. This day view will have to be created separately.
 
 ### Creating the Day View
 
-1. Create a view page.
+1. Create a view page. (The view should show indexed content)
+1. Select a display style. (One that is not FullCalendar Solr)
 1. Under `Advanced > Contextual Filter`, add a field containing a string date
 in YYYY-MM-DD format. This should be the same as the date field used in the
 year view.
@@ -62,6 +63,7 @@ year view.
 path of the year view except last URL component is 'day' instead of 'year'
 (i.e. if the year view has path `/a/b/c/year`, the day view must have path
 `/a/b/c/day`).
+1. Add any additional view configurations as needed.
 
 
 ## Troubleshooting
