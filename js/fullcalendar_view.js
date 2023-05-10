@@ -55,20 +55,14 @@
         drupalSettings.calendars[calendarIndex].render();
 
         var years = JSON.parse(calendarSettings['years']);
-        var selectedYear = getUrlYear();
-        if (!selectedYear) {
-          selectedYear = years[0];
-        }
-        if (selectedYear && !isNaN(selectedYear)) {
-          drupalSettings.calendars[calendarIndex].gotoDate(selectedYear);
-          // Build custom header with year dropdown
-          $(this).find('.fc-solr-header').empty()
-            .append(buildHeader(years, selectedYear, calendarSettings['headerText']))
-            .change(function () {
-              var selectedYear = $('select').val();
-              redirectYear(selectedYear);
-            });
-        }
+        var selectedYear = drupalSettings.calendars[calendarIndex].getDate().getUTCFullYear();
+        // Build custom header with year dropdown
+        $(this).find('.fc-solr-header').empty()
+          .append(buildHeader(years, selectedYear, calendarSettings['headerText']))
+          .change(function () {
+            var selectedYear = $('select').val();
+            redirectYear(selectedYear);
+          });
       });
 
       /**
@@ -144,19 +138,6 @@
           urlPath[yearIdx + 1] = selectedYear;
           window.location.pathname = urlPath.join('/');
         }
-      }
-
-      /**
-       * Gets the selected year from the URL.
-       * @returns {string|null} the year in the URL, if any
-       */
-      function getUrlYear() {
-        var urlPath = window.location.pathname.split('/');
-        var year = urlPath[urlPath.length - 1];
-        if (isNaN(year)) {
-          return null;
-        }
-        return year;
       }
     },
   };

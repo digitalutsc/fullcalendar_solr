@@ -47,6 +47,7 @@ class FullCalendarSolr extends StylePluginBase {
         'multiMonthMinWidth' => ['default' => 200],
         'multiMonthMaxColumns' => ['default' => 4],
         'navLinks' => ['default' => FALSE],
+        'initialDate' => ['default' => ''],
       ],
     ];
 
@@ -169,7 +170,7 @@ class FullCalendarSolr extends StylePluginBase {
 
     // Create the path to the day view.
     $path = explode('/', $this->view->getUrl()->toString());
-    $year_index = array_search('year', $path);
+    $year_index = array_search('year', array_reverse($path, true));
     $day_path = array_slice($path, 0, $year_index);
     $day_path[] = 'day';
     $day_path = implode('/', $day_path);
@@ -198,6 +199,14 @@ class FullCalendarSolr extends StylePluginBase {
       // trim($facet_data['count'], '"') to get result count.
     }
     sort($years);
+
+    // Get the calendar's initial year.
+    if (isset($path[$year_index + 1]) && is_numeric($path[$year_index + 1])) {
+      $this->options['fullcalendar_options']['initialDate'] = $path[$year_index + 1];
+    }
+    else {
+      $this->options['fullcalendar_options']['initialDate'] = $years[0] ?: (new \DateTime())->format('Y-m-d');
+    }
 
     return [
       '#theme' => $this->themeFunctions(),
