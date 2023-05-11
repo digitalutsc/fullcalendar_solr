@@ -1,12 +1,12 @@
 # FullCalendar Solr
 
 FullCalendar Solr provides integration with the JavaScript FullCalendar library
-to provide a Year Calendar Views display formatter that is compatible with
-Search Api.
+to provide a Year Calendar View display formatter that is compatible with
+Search API.
 
 The calendar highlights dates associated with content. It also features a year
 dropdown containing only years that have content. This module is compatible
-with ajax and the facets module.
+with Search API Solr and Facets modules.
 
 **Note:** this formatter is not compatible with regular content Views.
 
@@ -17,10 +17,10 @@ with ajax and the facets module.
 
 This module requires the following modules:
 
-- [Search Api](https://www.drupal.org/project/search_api)
+- [Search API](https://www.drupal.org/project/search_api)
 - [Views](https://www.drupal.org/project/views)
 
-The Search Api backend needs to support the `search_api_facets` option.
+The Search API backend needs to support the `search_api_facets` option.
 
 
 ## Installation
@@ -36,10 +36,12 @@ select an index.
 1. Create a Page. Set the display format to `FullCalendar Solr`.
 1. Configure the page path such that the last component is 'year'.
 (e.g. `/a/b/c/year`)
-1. Under `Fields`, add a string field containing a date in YYYY-MM-DD format.
+1. Under `Fields`, add a string field containing a date in YYYY-MM-DD format. 
+Any dates not in YYYY-MM-DD format will no be displayed in the calendar.
 1. Under `Advanced > Contextual Filters`, select a field containing year values
 in YYYY format.
 1. Under `Format > Settings`, configure the date and year fields.
+1. Add any additional view configurations as needed.
 1. Save the view.
 
 
@@ -60,10 +62,12 @@ for that day. This day view will have to be created separately.
 in YYYY-MM-DD format. This should be the same as the date field used in the
 year view.
 1. Configure the page path. The path of this view should be the same as the
-path of the year view except last URL component is 'day' instead of 'year'
+path of the year view except the last URL component is 'day' instead of 'year'
 (i.e. if the year view has path `/a/b/c/year`, the day view must have path
 `/a/b/c/day`).
+**Note:** The year and day view should have the same contextual filters.
 1. Add any additional view configurations as needed.
+1. Save the view.
 
 
 ## Troubleshooting
