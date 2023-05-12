@@ -1,0 +1,38 @@
+views.style.fullcalendar_solr:
+  type: views_style
+  label: 'FullCalendar Solr'
+  mapping:
+    date_field:
+      type: string
+      label: 'Date field'
+    year_field:
+      type: string
+      label: 'Year field'
+    header_text:
+      type: string
+      label: 'Header text template'
+    no_results:
+      type: boolean
+      label: 'Display calendar even if there are no results'
+    fullcalendar_options:
+      type: mapping
+      label: 'FullCalendar options'
+      mapping:
+        initialView:
+          type: string
+          label: 'Calendar type'
+        multiMonthMinWidth:
+          type: integer
+          label: 'Minimum month width'
+        multiMonthMaxColumns:
+          type: integer
+          label: 'Maximum number of months per row in year view'
+        navLinks:
+          type: boolean
+          label: 'Links to day view'
+        initialDate:
+          type: string
+          label: 'Date to display in the calendar'
+    classes:
+      type: string
+      label: 'CSS Classes'
