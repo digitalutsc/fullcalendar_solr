@@ -25,8 +25,8 @@ The Search API backend needs to support the `search_api_facets` option.
 
 ## Installation
 
-1. Clone this repo into `drupal/web/modules/contrib`.
-1. Enable the module at `Admin > Extend`.
+1. Clone this repo into `drupal/web/modules/contrib` or install using Composer.
+1. Enable the module at `Admin > Extend` or use Drush.
 
 
 ## Configuration
