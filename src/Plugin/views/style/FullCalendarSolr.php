@@ -40,14 +40,14 @@ class FullCalendarSolr extends StylePluginBase {
     $options['date_field'] = ['default' => ''];
     $options['year_field'] = ['default' => ''];
     $options['no_results'] = ['default' => FALSE];
-    $options['header_text'] = ['default' => 'All issues for $year'];
+    $options['header_text'] = ['default' => 'All issues for <year>'];
     $options['fullcalendar_options'] = [
       'contains' => [
+        'initialDate' => ['default' => ''],
         'initialView' => ['default' => 'multiMonthYear'],
         'multiMonthMinWidth' => ['default' => 200],
         'multiMonthMaxColumns' => ['default' => 4],
         'navLinks' => ['default' => FALSE],
-        'initialDate' => ['default' => ''],
       ],
     ];
 
@@ -90,7 +90,9 @@ class FullCalendarSolr extends StylePluginBase {
     $form['header_text'] = [
       '#type' => 'textfield',
       '#title' => t('Header Text Template'),
-      '#description' => t('Available placeholders: $year'),
+      '#description' => t('Available placeholders: <code>@patterns</code>', [
+        '@patterns' => '<year>',
+      ]),
       '#default_value' => $this->options['header_text'],
     ];
 
@@ -170,7 +172,7 @@ class FullCalendarSolr extends StylePluginBase {
 
     // Create the path to the day view.
     $path = explode('/', $this->view->getUrl()->toString());
-    $year_index = array_search('year', array_reverse($path, true));
+    $year_index = array_search('year', array_reverse($path, TRUE));
     $day_path = array_slice($path, 0, $year_index);
     $day_path[] = 'day';
     $day_path = implode('/', $day_path);

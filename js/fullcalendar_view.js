@@ -122,7 +122,8 @@
             yearOptions.push('<option value="' + year + '">' + year + '</option>');
           }
         });
-        var headerLabel = '<h3 class="fc-solr-header-label">' + labelTemplate.replace('$year', selectedYear) + '</h3>';
+        console.log(labelTemplate)
+        var headerLabel = '<h3 class="fc-solr-header-label">' + labelTemplate.replaceAll('<year>', selectedYear) + '</h3>';
         var yearSelect = '<select class="fc-solr-year-dropdown">' + yearOptions.join('\n') + '</select>';
         return headerLabel + yearSelect;
       }
