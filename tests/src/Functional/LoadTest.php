@@ -5,7 +5,7 @@ namespace Drupal\Tests\fullcalendar_solr\Functional;
 use Drupal\Tests\BrowserTestBase;
 
 /**
- * Tests to ensure that main page loads with module enabled.
+ * Tests that the main page loads with module enabled.
  *
  * @group fullcalendar_solr
  */
