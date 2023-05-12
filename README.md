@@ -37,7 +37,7 @@ select an index.
 1. Configure the page path such that the last component is 'year'.
 (e.g. `/a/b/c/year`)
 1. Under `Fields`, add a string field containing a date in YYYY-MM-DD format. 
-Any dates not in YYYY-MM-DD format will no be displayed in the calendar.
+Any dates not in YYYY-MM-DD format will not be displayed in the calendar.
 1. Under `Advanced > Contextual Filters`, select a field containing year values
 in YYYY format.
 1. Under `Format > Settings`, configure the date and year fields.
