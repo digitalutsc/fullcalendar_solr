@@ -5,7 +5,7 @@ to provide a Year Calendar View display formatter that is compatible with
 Search API.
 
 The calendar highlights dates associated with content. It also features a year
-dropdown containing only years that have content. This module is compatible
+dropdown containing only years with results. This module is compatible
 with Search API Solr and Facets modules.
 
 **Note:** this formatter is not compatible with regular content Views.
