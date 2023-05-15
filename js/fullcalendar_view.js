@@ -55,7 +55,7 @@
         drupalSettings.calendars[calendarIndex].render();
 
         var years = JSON.parse(calendarSettings['years']);
-        var selectedYear = drupalSettings.calendars[calendarIndex].getDate().getUTCFullYear();
+        var selectedYear = '' + drupalSettings.calendars[calendarIndex].getDate().getUTCFullYear();
         // Build custom header with year dropdown
         $(this).find('.fc-solr-header').empty()
           .append(buildHeader(years, selectedYear, calendarSettings['headerText']))
@@ -122,7 +122,6 @@
             yearOptions.push('<option value="' + year + '">' + year + '</option>');
           }
         });
-        console.log(labelTemplate)
         var headerLabel = '<h3 class="fc-solr-header-label">' + labelTemplate.replaceAll('<year>', selectedYear) + '</h3>';
         var yearSelect = '<select class="fc-solr-year-dropdown">' + yearOptions.join('\n') + '</select>';
         return headerLabel + yearSelect;
