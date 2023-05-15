@@ -71,7 +71,7 @@ class FullCalendarSolr extends StylePluginBase {
 
     $form['date_field'] = [
       '#type' => 'select',
-      '#title' => t('Date Field'),
+      '#title' => $this->t('Date Field'),
       '#required' => TRUE,
       '#options' => $view_fields_labels,
       '#description' => $this->t('The selected field should contain a string representing a date in YYYY-MM-DD format.'),
@@ -80,17 +80,17 @@ class FullCalendarSolr extends StylePluginBase {
 
     $form['year_field'] = [
       '#type' => 'select',
-      '#title' => t('Year Field'),
+      '#title' => $this->t('Year Field'),
       '#required' => TRUE,
       '#options' => $view_argument_labels,
-      '#description' => t('The selected field should contain a string or integer representing a year in YYYY format.'),
+      '#description' => $this->t('The selected field should contain a string or integer representing a year in YYYY format.'),
       '#default_value' => $this->options['year_field'],
     ];
 
     $form['header_text'] = [
       '#type' => 'textfield',
-      '#title' => t('Header Text Template'),
-      '#description' => t('Available placeholders: <code>@patterns</code>', [
+      '#title' => $this->t('Header Text Template'),
+      '#description' => $this->t('Available placeholders: <code>@patterns</code>', [
         '@patterns' => '<year>',
       ]),
       '#default_value' => $this->options['header_text'],
@@ -98,35 +98,35 @@ class FullCalendarSolr extends StylePluginBase {
 
     $form['fullcalendar_options']['multiMonthMinWidth'] = [
       '#type' => 'number',
-      '#title' => t('Minimum month (pixel) width'),
+      '#title' => $this->t('Minimum month (pixel) width'),
       '#default_value' => $this->options['fullcalendar_options']['multiMonthMinWidth'],
     ];
 
     $form['fullcalendar_options']['multiMonthMaxColumns'] = [
       '#type' => 'number',
-      '#title' => t('Maximum number of months per row in year view.'),
+      '#title' => $this->t('Maximum number of months per row in year view.'),
       '#default_value' => $this->options['fullcalendar_options']['multiMonthMaxColumns'],
     ];
 
     $form['fullcalendar_options']['navLinks'] = [
       '#type' => 'checkbox',
-      '#title' => t('Navigation Links to Day View'),
+      '#title' => $this->t('Navigation Links to Day View'),
       '#default_value' => $this->options['fullcalendar_options']['navLinks'],
-      '#description' => t('Link to a day view when a highlighted date is clicked. The day view must have the same path as this view except the last component should be "day" instead of "year". i.e. if this view has path "a/b/c/year", then the day view should have path "a/b/c/day".'),
+      '#description' => $this->t('Link to a day view when a highlighted date is clicked. The day view must have the same path as this view except the last component should be "day" instead of "year". i.e. if this view has path "a/b/c/year", then the day view should have path "a/b/c/day".'),
     ];
 
     $form['no_results'] = [
       '#type' => 'checkbox',
-      '#title' => t('Display calendar even if there are no results.'),
+      '#title' => $this->t('Display calendar even if there are no results.'),
       '#default_value' => $this->options['no_results'],
     ];
 
     // Extra CSS classes.
     $form['classes'] = [
       '#type' => 'textfield',
-      '#title' => t('CSS classes'),
+      '#title' => $this->t('CSS classes'),
       '#default_value' => (isset($this->options['classes'])),
-      '#description' => t('CSS classes for further customization of the calendar.'),
+      '#description' => $this->t('CSS classes for further customization of the calendar.'),
     ];
   }
 
@@ -135,15 +135,15 @@ class FullCalendarSolr extends StylePluginBase {
    */
   public function render() {
     if (empty($this->options['date_field'])) {
-      $this->messenger()->addWarning(t('The Date field mapping cannot be empty in FullCalendar Solr format settings.'));
+      $this->messenger()->addWarning($this->t('The Date field mapping cannot be empty in FullCalendar Solr format settings.'));
       return;
     }
     if (empty($this->options['year_field'])) {
-      $this->messenger()->addWarning(t('The Year field mapping cannot be empty in FullCalendar Solr format settings.'));
+      $this->messenger()->addWarning($this->t('The Year field mapping cannot be empty in FullCalendar Solr format settings.'));
       return;
     }
     if (!in_array('year', explode('/', $this->view->getPath()))) {
-      $this->messenger()->addWarning(t('The view path must contain "year" as the last component.'));
+      $this->messenger()->addWarning($this->t('The view path must contain "year" as the last component.'));
       return;
     }
 
@@ -252,7 +252,10 @@ class FullCalendarSolr extends StylePluginBase {
     }
     catch (\Exception $e) {
       // Return NULL if the field didn't contain a parseable date string.
-      $this->messenger()->addMessage($this->t('The date "@date" does not conform to a <a href="@php-manual">PHP supported date and time format</a>.', ['@date' => $date_string, '@php-manual' => 'http://php.net/manual/en/datetime.formats.php']));
+      $this->messenger()->addMessage($this->t('The date "@date" does not conform to a <a href="@php-manual">PHP supported date and time format</a>.', [
+        '@date' => $date_string,
+        '@php-manual' => 'http://php.net/manual/en/datetime.formats.php',
+      ]));
       $date = NULL;
     }
     return $date;
@@ -322,7 +325,7 @@ class FullCalendarSolr extends StylePluginBase {
    * @param string $operator
    *   The target operator.
    */
-  protected function deleteCondition(&$condition_group, $field, $operator) {
+  protected function deleteCondition(ConditionGroupInterface &$condition_group, $field, $operator) {
     if (!isset($condition_group) || !isset($field)) {
       return;
     }

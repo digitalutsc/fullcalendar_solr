@@ -23,13 +23,13 @@ function fullcalendar_solr_theme($existing, $type, $theme, $path) {
 /**
  * Prepares variables for the FullCalendar style template.
  *
- * Default template: views-view-fullcalendar-solr.html.twig
+ * Default template: views-view-fullcalendar-solr.html.twig.
  *
  * @param array $vars
  *   An associative array containing:
  *   - view: A ViewExecutable object
  *   - rows: The raw row data
- *   - options: FullCalendar presentation options
+ *   - options: FullCalendar presentation options.
  */
 function template_preprocess_views_view_fullcalendar_solr(array &$vars) {
   $view = $vars['view'];
