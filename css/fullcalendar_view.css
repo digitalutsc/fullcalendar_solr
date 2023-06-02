@@ -1,6 +1,7 @@
-:root .views-view-fullcalendar-solr {
+.views-view-fullcalendar-solr {
   --fc-neutral-bg-color: none;
   --fc-border-color: none;
+  width: 100%;
 }
 
 .views-view-fullcalendar-solr .fc-daygrid-day-frame {
@@ -30,4 +31,5 @@ a[data-navlink][title^="0"]) {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  padding: 0 1.2em;
 }
