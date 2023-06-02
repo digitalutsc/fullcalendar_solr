@@ -17,6 +17,11 @@ a[data-navlink]:hover,
   color: inherit;
 }
 
+.views-view-fullcalendar-solr :is(a[data-navlink][title="No results"],
+a[data-navlink][title^="0"]) {
+  cursor: default !important;
+}
+
 .views-view-fullcalendar-solr .fc-title {
   visibility: hidden;
 }
