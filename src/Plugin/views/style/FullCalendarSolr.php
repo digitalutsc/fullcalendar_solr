@@ -203,11 +203,14 @@ class FullCalendarSolr extends StylePluginBase {
     sort($years);
 
     // Get the calendar's initial year.
+    // Check if a year is provided in the path.
     if (isset($path[$year_index + 1]) && is_numeric($path[$year_index + 1])) {
       $this->options['fullcalendar_options']['initialDate'] = $path[$year_index + 1];
     }
     else {
-      $this->options['fullcalendar_options']['initialDate'] = $years[0] ?: (new \DateTime())->format('Y-m-d');
+      // If no year provided in the path, use the earliest year with results.
+      // If no years have results, use the current year.
+      $this->options['fullcalendar_options']['initialDate'] = !empty($years) ? $years[0] : (new \DateTime())->format('Y-m-d');
     }
 
     return [
