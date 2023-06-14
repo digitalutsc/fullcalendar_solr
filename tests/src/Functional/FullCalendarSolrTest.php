@@ -2,10 +2,10 @@
 
 namespace Drupal\Tests\fullcalendar_solr\Functional;
 
-use Drupal\Tests\BrowserTestBase;
-use Drupal\search_api\Entity\Index;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\search_api\Entity\Index;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests the FullCalendar Solr style plugin.

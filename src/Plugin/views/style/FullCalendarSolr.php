@@ -2,7 +2,7 @@
 
 namespace Drupal\fullcalendar_solr\Plugin\views\style;
 
-use Drupal\core\form\FormStateInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\search_api\Query\ConditionGroupInterface;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 
@@ -62,10 +62,12 @@ class FullCalendarSolr extends StylePluginBase {
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
 
+    // Get view fields.
     $initial_labels = ['' => $this->t('- None -')];
     $view_fields_labels = $this->displayHandler->getFieldLabels();
     $view_fields_labels = array_merge($initial_labels, $view_fields_labels);
 
+    // Get view contextual filter fields.
     $view_argument_labels = ['' => $this->t('- None -')];
     foreach ($this->displayHandler->getHandlers('argument') as $id => $handler) {
       $view_argument_labels[$id] = $handler->adminLabel();
@@ -291,25 +293,20 @@ class FullCalendarSolr extends StylePluginBase {
   protected function getYearFacets($year_field, $limit = -1, $min_count = 1, $missing = FALSE) {
     $year_facets = [];
 
-    /** @var \Drupal\search_api\IndexInterface $index */
-    $index = $this->view->query->getIndex();
+    /** @var \Drupal\search_api\Plugin\views\query\SearchApiQuery $view_query */
+    $view_query = $this->view->query;
+    $server = $view_query->getIndex()->getServerInstance();
 
-    /** @var \Drupal\search_api\ServerInterface|null $server */
-    $server = $index->getServerInstance();
-
-    if ($server->supportsFeature('search_api_facets')) {
+    if ($view_query->getSearchApiQuery() && $server && $server->supportsFeature('search_api_facets')) {
       // Copy of the query executed by view.
-      /** @var \Drupal\search_api\Query\QueryInterface|null $query */
-      $query = clone $this->view->query->getSearchApiQuery();
+      $query = clone $view_query->getSearchApiQuery();
       $query->range(0, 0);
 
-      // Remove existing condition filtering by year.
-      /** @var \Drupal\search_api\Query\ConditionGroupInterface $condition_group */
+      // Remove any existing conditions filtering for year equality.
       $condition_group = $query->getConditionGroup();
       $this->deleteCondition($condition_group, $year_field, '=');
 
-      // If the query already has a search_api_facets entry,
-      // this will override it.
+      // This will override any pre-existing search_api_facets options.
       $query->setOption('search_api_facets', [
         $year_field => [
           'field' => $year_field,
@@ -338,17 +335,12 @@ class FullCalendarSolr extends StylePluginBase {
    *   The target operator.
    */
   protected function deleteCondition(ConditionGroupInterface &$condition_group, $field, $operator) {
-    if (!isset($condition_group) || !isset($field)) {
+    if (empty($condition_group->getConditions())) {
       return;
     }
-
-    /** @var \Drupal\search_api\Query\ConditionInterface[]|\Drupal\search_api\Query\ConditionGroupInterface[] $conditions */
     $conditions = &$condition_group->getConditions();
     foreach ($conditions as $i => $condition) {
       // Check if the condition contains the target field.
-      if (strpos($condition, $field) === FALSE) {
-        continue;
-      }
       if ($condition instanceof ConditionGroupInterface) {
         $this->deleteCondition($condition, $field, $operator);
       }
