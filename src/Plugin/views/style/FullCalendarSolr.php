@@ -43,6 +43,7 @@ class FullCalendarSolr extends StylePluginBase {
     $options['header_text'] = ['default' => 'All issues for <year>'];
     $options['fullcalendar_options'] = [
       'contains' => [
+        'eventBackgroundColor' => ['default' => '#24db3f'],
         'initialDate' => ['default' => ''],
         'initialView' => ['default' => 'multiMonthYear'],
         'multiMonthMinWidth' => ['default' => 200],
@@ -50,6 +51,7 @@ class FullCalendarSolr extends StylePluginBase {
         'navLinks' => ['default' => FALSE],
       ],
     ];
+    $options['classes'] = ['default' => ''];
 
     return $options;
   }
@@ -108,6 +110,13 @@ class FullCalendarSolr extends StylePluginBase {
       '#default_value' => $this->options['fullcalendar_options']['multiMonthMaxColumns'],
     ];
 
+    $form['fullcalendar_options']['eventBackgroundColor'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Date Highlight Color'),
+      '#default_value' => $this->options['fullcalendar_options']['eventBackgroundColor'],
+      '#description' => $this->t('The specified color can be in any of the CSS color formats such #f00, #ff0000, rgb(255,0,0), or red.'),
+    ];
+
     $form['fullcalendar_options']['navLinks'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Navigation Links to Day View'),
@@ -125,7 +134,7 @@ class FullCalendarSolr extends StylePluginBase {
     $form['classes'] = [
       '#type' => 'textfield',
       '#title' => $this->t('CSS classes'),
-      '#default_value' => (isset($this->options['classes'])),
+      '#default_value' => $this->options['classes'],
       '#description' => $this->t('CSS classes for further customization of the calendar.'),
     ];
   }
