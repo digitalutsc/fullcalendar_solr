@@ -27,9 +27,13 @@ a[data-navlink][title^="0"]) {
   visibility: hidden;
 }
 
-.fc-solr-header {
+.views-view-fullcalendar-solr .fc-solr-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   padding: 0 1.2em;
+}
+
+.views-view-fullcalendar-solr .fc-day-today {
+  background-color: inherit !important;
 }
