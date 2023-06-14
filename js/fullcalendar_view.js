@@ -54,6 +54,15 @@
         );
         drupalSettings.calendars[calendarIndex].render();
 
+        // Accessibility: check for broken ARIA references.
+        $('.views-view-fullcalendar-solr td.fc-day.fc-day-disabled.fc-daygrid-day').each(function () {
+          var refId = this.getAttribute('aria-labelledby');
+          var ref = this.querySelector('#' + refId);
+          if (ref === null) {
+            this.removeAttribute('aria-labelledby');
+          }
+        });
+
         var years = JSON.parse(calendarSettings['years']);
         var selectedYear = '' + drupalSettings.calendars[calendarIndex].getDate().getUTCFullYear();
         // Build custom header with year dropdown
@@ -122,8 +131,8 @@
             yearOptions.push('<option value="' + year + '">' + year + '</option>');
           }
         });
-        var headerLabel = '<h3 class="fc-solr-header-label">' + labelTemplate.replaceAll('<year>', selectedYear) + '</h3>';
-        var yearSelect = '<select class="fc-solr-year-dropdown">' + yearOptions.join('\n') + '</select>';
+        var headerLabel = '<h2 class="fc-solr-header-label">' + labelTemplate.replaceAll('<year>', selectedYear) + '</h2>';
+        var yearSelect = '<select aria-label="Select calendar year" class="fc-solr-year-dropdown">' + yearOptions.join('\n') + '</select>';
         return headerLabel + yearSelect;
       }
 
