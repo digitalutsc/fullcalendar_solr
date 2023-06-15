@@ -23,48 +23,45 @@
         };
         calendarOptions['events'] = JSON.parse(calendarSettings['events']);
 
-        // Check if navLinks are enabled
-        if (calendarSettings['options']['navLinks']) {
-          calendarOptions.navLinkDayClick = function (dateObj, jsEvent) {
-            date = formatDate(dateObj);
-            var event = drupalSettings.calendars[calendarIndex].getEventById(date);
-            if (event && event.url) {
-              var resultsPage = event.url + window.location.search;
-              window.open(resultsPage);
-            }
-          };
-          calendarOptions.navLinkHint = function (dateText, dateObj) {
-            date = formatDate(dateObj);
-            var targetEvent = drupalSettings.calendars[calendarIndex].getEventById(date);
-            if (!targetEvent || isNaN(targetEvent.extendedProps.count) || targetEvent.extendedProps.count <= 0) {
-              return 'No results';
-            }
-            if (targetEvent.extendedProps.count === 1) {
-              return '1 result';
-            }
-            return targetEvent.extendedProps.count + ' results';
-          }
-        }
-
         // Initialize FullCalendar instance
         var calendarEl = $(this).find('.fc-solr-calendar')[0];
         drupalSettings.calendars[calendarIndex] = new FullCalendar.Calendar(
           calendarEl,
           calendarOptions
         );
-        drupalSettings.calendars[calendarIndex].render();
 
-        // Accessibility: check for broken ARIA references.
-        $('.views-view-fullcalendar-solr td.fc-day.fc-day-disabled.fc-daygrid-day').each(function () {
+        // Check if navLinks are enabled
+        var calendar = drupalSettings.calendars[calendarIndex];
+        if (calendarSettings['options']['navLinks']) {
+          calendar.setOption('navLinkDayClick', navLinkDayClick(calendar));
+          calendar.setOption('navLinkHint', navLinkHint(calendar));
+        }
+        calendar.render();
+
+        // Process day cells.
+        $('.views-view-fullcalendar-solr td.fc-day.fc-daygrid-day').each(function () {
+          // In FullCalendar V6, disabled grid cells in the MultiMonthYear view
+          // have broken ARIA references. This is a workaround for now.
           var refId = this.getAttribute('aria-labelledby');
           var ref = this.querySelector('#' + refId);
-          if (ref === null) {
+          if (!ref) {
             this.removeAttribute('aria-labelledby');
+          }
+          else if (!this.querySelector('.fc-event.fc-bg-event')) {
+            // Remove tab focus from dates without results.
+            ref.setAttribute('tabindex', '-1');
+            ref.removeAttribute('data-navlink');
+          }
+          else {
+            // Modify aria-labels for dates with results.
+            var title = ref.getAttribute('title');
+            this.removeAttribute('aria-labelledby');
+            this.setAttribute('aria-label', 'Go to ' + title);
           }
         });
 
         var years = JSON.parse(calendarSettings['years']);
-        var selectedYear = '' + drupalSettings.calendars[calendarIndex].getDate().getUTCFullYear();
+        var selectedYear = '' + calendar.getDate().getUTCFullYear();
         // Build custom header with year dropdown
         $(this).find('.fc-solr-header').empty()
           .append(buildHeader(years, selectedYear, calendarSettings['headerText']))
@@ -134,6 +131,39 @@
         var headerLabel = '<h2 class="fc-solr-header-label">' + labelTemplate.replaceAll('<year>', selectedYear) + '</h2>';
         var yearSelect = '<select aria-label="Select calendar year" class="fc-solr-year-dropdown">' + yearOptions.join('\n') + '</select>';
         return headerLabel + yearSelect;
+      }
+
+      /**
+       * Generates navLinkDayClick callback.
+       * @param {object} calendar the calendar instance
+       */
+      function navLinkDayClick(calendar) {
+        return (dateObj, jsEvent) => {
+          date = formatDate(dateObj);
+          var event = calendar.getEventById(date);
+          if (event && event.url) {
+            var resultsPage = event.url + window.location.search;
+            window.open(resultsPage);
+          }
+        };
+      }
+
+      /**
+       * Generates the navLinkHint callback.
+       * @param {object} calendar the calendar instance
+       */
+      function navLinkHint(calendar) {
+        return (dateText, dateObj) => {
+          date = formatDate(dateObj);
+          var targetEvent = calendar.getEventById(date);
+          if (!targetEvent || isNaN(targetEvent.extendedProps.count) || targetEvent.extendedProps.count <= 0) {
+            return 'No results for ' + dateText;
+          }
+          if (targetEvent.extendedProps.count === 1) {
+            return '1 result for ' + dateText;
+          }
+          return targetEvent.extendedProps.count + ' results for ' + dateText;
+        }
       }
 
       /**
