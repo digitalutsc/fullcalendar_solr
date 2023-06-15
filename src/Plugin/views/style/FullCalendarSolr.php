@@ -39,18 +39,20 @@ class FullCalendarSolr extends StylePluginBase {
 
     $options['date_field'] = ['default' => ''];
     $options['year_field'] = ['default' => ''];
-    $options['no_results'] = ['default' => FALSE];
-    $options['header_text'] = ['default' => 'All issues for <year>'];
+    $options['heading_text'] = ['default' => 'All issues for <year>'];
     $options['fullcalendar_options'] = [
       'contains' => [
         'eventBackgroundColor' => ['default' => '#24db3f'],
         'initialDate' => ['default' => ''],
         'initialView' => ['default' => 'multiMonthYear'],
-        'multiMonthMinWidth' => ['default' => 200],
         'multiMonthMaxColumns' => ['default' => 4],
+        'multiMonthMinWidth' => ['default' => 200],
         'navLinks' => ['default' => FALSE],
       ],
     ];
+    $options['direct_to_item'] = ['default' => FALSE];
+    $options['item_url_field'] = ['default' => ''];
+    $options['no_results'] = ['default' => FALSE];
     $options['classes'] = ['default' => ''];
 
     return $options;
@@ -91,25 +93,25 @@ class FullCalendarSolr extends StylePluginBase {
       '#default_value' => $this->options['year_field'],
     ];
 
-    $form['header_text'] = [
+    $form['heading_text'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Header Text Template'),
       '#description' => $this->t('Available placeholders: <code>@patterns</code>', [
         '@patterns' => '<year>',
       ]),
-      '#default_value' => $this->options['header_text'],
-    ];
-
-    $form['fullcalendar_options']['multiMonthMinWidth'] = [
-      '#type' => 'number',
-      '#title' => $this->t('Minimum month (pixel) width'),
-      '#default_value' => $this->options['fullcalendar_options']['multiMonthMinWidth'],
+      '#default_value' => $this->options['heading_text'],
     ];
 
     $form['fullcalendar_options']['multiMonthMaxColumns'] = [
       '#type' => 'number',
       '#title' => $this->t('Maximum number of months per row in year view.'),
       '#default_value' => $this->options['fullcalendar_options']['multiMonthMaxColumns'],
+    ];
+
+    $form['fullcalendar_options']['multiMonthMinWidth'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Minimum month (pixel) width'),
+      '#default_value' => $this->options['fullcalendar_options']['multiMonthMinWidth'],
     ];
 
     $form['fullcalendar_options']['eventBackgroundColor'] = [
@@ -124,6 +126,34 @@ class FullCalendarSolr extends StylePluginBase {
       '#title' => $this->t('Navigation Links to Day View'),
       '#default_value' => $this->options['fullcalendar_options']['navLinks'],
       '#description' => $this->t('Link to a day view when a highlighted date is clicked. The day view must have the same path as this view except the last component should be "day" instead of "year". i.e. if this view has path "a/b/c/year", then the day view should have path "a/b/c/day".'),
+    ];
+
+    $form['direct_to_item'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Link to Item'),
+      '#default_value' => $this->options['direct_to_item'],
+      '#description' => $this->t('Link to the item instead of the day view if the date only has one result. This only takes effect if the "Navigation Links to Day View" option is enabled.'),
+      '#states' => [
+        'enabled' => [
+          ':input[data-drupal-selector="edit-style-options-fullcalendar-options-navlinks"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['item_url_field'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Item URL Field'),
+      '#required' => $this->options['direct_to_item'],
+      '#options' => $view_fields_labels,
+      '#description' => $this->t('The selected field should contain a path or URL to the item.'),
+      '#default_value' => $this->options['item_url_field'],
+      '#states' => [
+        'enabled' => [
+          ':input[data-drupal-selector="edit-style-options-fullcalendar-options-navlinks"]' => ['checked' => TRUE],
+          'and',
+          ':input[data-drupal-selector="edit-style-options-direct-to-item"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     $form['no_results'] = [
@@ -167,6 +197,7 @@ class FullCalendarSolr extends StylePluginBase {
     // aggregation, and grouping by date will group items with same date
     // but different time separately.
     $date_counts = [];
+    $item_urls = [];
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
       $date = $this->buildDate($this->options['date_field']);
@@ -176,6 +207,8 @@ class FullCalendarSolr extends StylePluginBase {
       $date = $date->format('Y-m-d');
       if (!isset($date_counts[$date])) {
         $date_counts[$date] = 0;
+        // Store at most one URL per date.
+        $item_urls[$date] = $this->buildItemUrl($this->options['item_url_field']);
       }
       $date_counts[$date]++;
     }
@@ -198,7 +231,12 @@ class FullCalendarSolr extends StylePluginBase {
         'count' => $count,
       ];
       if ($this->options['fullcalendar_options']['navLinks']) {
-        $event['url'] = $day_path . '/' . $date;
+        if ($count === 1 && $this->options['direct_to_item']) {
+          $event['url'] = $item_urls[$date];
+        }
+        else {
+          $event['url'] = $event['url'] = $day_path . '/' . $date;
+        }
       }
       $events[] = $event;
     }
@@ -229,7 +267,8 @@ class FullCalendarSolr extends StylePluginBase {
       '#view' => $this->view,
       '#options' => [
         'fullcalendar_options' => $this->options['fullcalendar_options'],
-        'header_text' => $this->options['header_text'],
+        'heading_text' => $this->options['heading_text'],
+        'direct_to_item' => $this->options['direct_to_item'],
       ],
       '#rows' => [
         'events' => $events,
@@ -273,6 +312,23 @@ class FullCalendarSolr extends StylePluginBase {
       $date = NULL;
     }
     return $date;
+  }
+
+  /**
+   * Builds a URL string from the current data row.
+   *
+   * @param string $field
+   *   The machine name of the item URL field.
+   *
+   * @return string
+   *   A string containing the item URL/path.
+   */
+  protected function buildItemUrl($field) {
+    $url_markup = $this->getField($this->view->row_index, $field);
+    if (empty($url_markup)) {
+      return '';
+    }
+    return strip_tags($url_markup->__toString());
   }
 
   /**

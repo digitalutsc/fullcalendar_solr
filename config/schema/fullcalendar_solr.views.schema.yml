@@ -8,7 +8,7 @@ views.style.fullcalendar_solr:
     year_field:
       type: string
       label: "Year field"
-    header_text:
+    heading_text:
       type: string
       label: "Header text template"
     no_results:

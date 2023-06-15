@@ -11,7 +11,7 @@
        * @return {object} an object containing FullCalendar options
        */
       function getPresets() {
-        const presetOptions = {
+        return {
           initialView: "multiMonthYear",
           contentHeight: "auto",
           eventDisplay: "background",
@@ -20,7 +20,6 @@
             weekday: "narrow" // Single character weekday. E.g. W
           }
         };
-        return presetOptions;
       }
 
       /**
@@ -29,22 +28,21 @@
        * @return {string} a date string formatted as YYYY-MM-DD
        */
       function formatDate(dateObj) {
-        const date = dateObj.toLocaleDateString("en-CA", {
+        return dateObj.toLocaleDateString("en-CA", {
           year: "numeric",
           month: "2-digit",
           day: "2-digit"
         });
-        return date;
       }
 
       /**
        * Builds a custom header for the FullCalendar.
        * @param {Array} years year options to display in the year dropdown
        * @param {string} selectedYear the default year of the dropdown
-       * @param {string} labelTemplate template for the header text
+       * @param {string} headingTemplate template for the heading text
        * @return {string} a string containing HTML
        */
-      function buildHeader(years, selectedYear, labelTemplate) {
+      function buildHeader(years, selectedYear, headingTemplate) {
         // If no selected year and no years with results, don't build the header.
         if (!selectedYear && (!Array.isArray(years) || years.length <= 0)) {
           return "";
@@ -64,53 +62,14 @@
             yearOptions.push(`<option value="${year}">${year}</option>`);
           }
         });
-        const headerLabel = `<h2 class="fc-solr-header-label">${labelTemplate.replaceAll(
+        const heading = `<h2 class="fc-solr-header-label">${headingTemplate.replaceAll(
           "<year>",
           selectedYear
         )}</h2>`;
         const yearSelect = `<select aria-label="Select calendar year" class="fc-solr-year-dropdown">${yearOptions.join(
           "\n"
         )}</select>`;
-        return headerLabel + yearSelect;
-      }
-
-      /**
-       * Generates navLinkDayClick callback.
-       * @param {FullCalendar.Calendar} calendar the calendar instance
-       * @return {Function} a callback function
-       */
-      function navLinkDayClick(calendar) {
-        return (dateObj, jsEvent) => {
-          const date = formatDate(dateObj);
-          const event = calendar.getEventById(date);
-          if (event && event.url) {
-            const resultsPage = event.url + window.location.search;
-            window.open(resultsPage);
-          }
-        };
-      }
-
-      /**
-       * Generates the navLinkHint callback.
-       * @param {FullCalendar.Calendar} calendar the calendar instance
-       * @return {Function} a callback function
-       */
-      function navLinkHint(calendar) {
-        return (dateText, dateObj) => {
-          const date = formatDate(dateObj);
-          const targetEvent = calendar.getEventById(date);
-          if (
-            !targetEvent ||
-            Number.isNaN(targetEvent.extendedProps.count) ||
-            targetEvent.extendedProps.count <= 0
-          ) {
-            return `No results for ${dateText}`;
-          }
-          if (targetEvent.extendedProps.count === 1) {
-            return `1 result for ${dateText}`;
-          }
-          return `${targetEvent.extendedProps.count} results for ${dateText}`;
-        };
+        return heading + yearSelect;
       }
 
       /**
@@ -156,12 +115,38 @@
         // Check if navLinks are enabled.
         const calendar = drupalSettings.calendars[calendarIndex];
         if (calendarSettings.options.navLinks) {
-          calendar.setOption("navLinkDayClick", navLinkDayClick(calendar));
-          calendar.setOption("navLinkHint", navLinkHint(calendar));
+          calendar.setOption("navLinkDayClick", function(dateObj, jsEvent) {
+            const date = formatDate(dateObj);
+            const event = calendar.getEventById(date);
+            if (event && event.url) {
+              let resultsPage = event.url;
+              if (!calendarSettings.directToItem) {
+                // If not redirecting to item, need to preserve the search query.
+                resultsPage += window.location.search;
+              }
+              window.open(resultsPage);
+            }
+          });
+          calendar.setOption("navLinkHint", (dateText, dateObj) => {
+            const date = formatDate(dateObj);
+            const targetEvent = calendar.getEventById(date);
+            if (
+              !targetEvent ||
+              Number.isNaN(targetEvent.extendedProps.count) ||
+              targetEvent.extendedProps.count <= 0
+            ) {
+              return `No results for ${dateText}`;
+            }
+            if (targetEvent.extendedProps.count === 1) {
+              return `1 result for ${dateText}`;
+            }
+            return `${targetEvent.extendedProps.count} results for ${dateText}`;
+          });
         }
+
         calendar.render();
 
-        // Process day cells.
+        // Process day cells. This must be done after the calendar is rendered.
         $view.find("td.fc-day.fc-daygrid-day").each(function() {
           // In FullCalendar V6, disabled grid cells in the MultiMonthYear view
           // have broken ARIA references. This is a workaround for now.
@@ -186,8 +171,9 @@
         const headerHtml = buildHeader(
           years,
           calendarYear,
-          calendarSettings.headerText
+          calendarSettings.headingText
         );
+
         // Build custom header with year dropdown
         $view
           .find(".fc-solr-header")
