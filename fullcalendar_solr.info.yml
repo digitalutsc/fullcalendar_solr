@@ -1,6 +1,6 @@
 name: FullCalendar Solr
 type: module
-description: 'Provides a View display style that renders a Year Calendar compatible with Search API'
+description: "Provides a View display style that renders a Year Calendar compatible with Search API"
 package: Views
 core_version_requirement: ^9 || ^10
 dependencies:
