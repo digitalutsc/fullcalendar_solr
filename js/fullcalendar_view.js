@@ -7,30 +7,28 @@
   Drupal.behaviors.fullCalendarSolr = {
     attach: function (context, settings) {
       $(once('fullCalendarSolr', '.views-view-fullcalendar-solr', context)).each(function () {
+        var $view = $(this);
         if (!drupalSettings.calendars) {
           drupalSettings.calendars = [];
         }
-        // Remove existing calendar
-        var calendarIndex = parseInt(this.getAttribute('fc-solr-index'));
+        // Remove existing calendar.
+        var calendarIndex = parseInt($view.attr('fc-solr-index'));
         if (drupalSettings.calendars[calendarIndex]) {
           drupalSettings.calendars[calendarIndex].destroy();
         }
-        // Build calendar options
+
+        // Build calendar options.
         var calendarSettings = drupalSettings.FullCalendarSolr[calendarIndex];
         var calendarOptions = {
           ...getPresets(),
           ...calendarSettings['options'],
+          events: JSON.parse(calendarSettings['events']),
         };
-        calendarOptions['events'] = JSON.parse(calendarSettings['events']);
+        // Initialize FullCalendar instance.
+        var calendarEl = $view.find('.fc-solr-calendar')[0];
+        drupalSettings.calendars[calendarIndex] = new FullCalendar.Calendar(calendarEl, calendarOptions);
 
-        // Initialize FullCalendar instance
-        var calendarEl = $(this).find('.fc-solr-calendar')[0];
-        drupalSettings.calendars[calendarIndex] = new FullCalendar.Calendar(
-          calendarEl,
-          calendarOptions
-        );
-
-        // Check if navLinks are enabled
+        // Check if navLinks are enabled.
         var calendar = drupalSettings.calendars[calendarIndex];
         if (calendarSettings['options']['navLinks']) {
           calendar.setOption('navLinkDayClick', navLinkDayClick(calendar));
@@ -39,36 +37,36 @@
         calendar.render();
 
         // Process day cells.
-        $('.views-view-fullcalendar-solr td.fc-day.fc-daygrid-day').each(function () {
-          // In FullCalendar V6, disabled grid cells in the MultiMonthYear view
-          // have broken ARIA references. This is a workaround for now.
-          var refId = this.getAttribute('aria-labelledby');
-          var ref = this.querySelector('#' + refId);
-          if (!ref) {
-            this.removeAttribute('aria-labelledby');
-          }
-          else if (!this.querySelector('.fc-event.fc-bg-event')) {
-            // Remove tab focus from dates without results.
-            ref.setAttribute('tabindex', '-1');
-            ref.removeAttribute('data-navlink');
-          }
-          else {
-            // Modify aria-labels for dates with results.
-            var title = ref.getAttribute('title');
-            this.removeAttribute('aria-labelledby');
-            this.setAttribute('aria-label', 'Go to ' + title);
-          }
-        });
+        $view.find('td.fc-day.fc-daygrid-day')
+          .each(function () {
+            // In FullCalendar V6, disabled grid cells in the MultiMonthYear view
+            // have broken ARIA references. This is a workaround for now.
+            var refId = $(this).attr('aria-labelledby');
+            var $ref = $('#' + refId, $(this));
+            if (!$ref[0]) {
+              $(this).removeAttr('aria-labelledby');
+            }
+            else if (!$(this).find('.fc-event.fc-bg-event')[0]) {
+              // Remove tab focus from dates without results.
+              $ref.attr('tabindex', '-1');
+              $ref.removeAttr('data-navlink');
+            }
+            else {
+              // Modify aria-labels for dates with results.
+              var title = $ref.attr('title');
+              $(this).removeAttr('aria-labelledby');
+              $(this).attr('aria-label', 'Go to ' + title);
+            }
+          });
 
         var years = JSON.parse(calendarSettings['years']);
-        var selectedYear = '' + calendar.getDate().getUTCFullYear();
+        var calendarYear = '' + calendar.getDate().getUTCFullYear();
+        var headerHtml = buildHeader(years, calendarYear, calendarSettings['headerText']);
         // Build custom header with year dropdown
-        $(this).find('.fc-solr-header').empty()
-          .append(buildHeader(years, selectedYear, calendarSettings['headerText']))
-          .change(function () {
-            var selectedYear = $('select').val();
-            redirectYear(selectedYear);
-          });
+        $view.find('.fc-solr-header')
+          .empty()
+          .append(headerHtml)
+          .change(() => redirectYear($('select', this).val()));
       });
 
       /**
