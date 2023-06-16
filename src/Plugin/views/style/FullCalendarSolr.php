@@ -143,15 +143,25 @@ class FullCalendarSolr extends StylePluginBase {
     $form['item_url_field'] = [
       '#type' => 'select',
       '#title' => $this->t('Item URL Field'),
-      '#required' => $this->options['direct_to_item'],
       '#options' => $view_fields_labels,
       '#description' => $this->t('The selected field should contain a path or URL to the item.'),
       '#default_value' => $this->options['item_url_field'],
       '#states' => [
-        'enabled' => [
-          ':input[data-drupal-selector="edit-style-options-fullcalendar-options-navlinks"]' => ['checked' => TRUE],
-          'and',
-          ':input[data-drupal-selector="edit-style-options-direct-to-item"]' => ['checked' => TRUE],
+        'disabled' => [
+          [
+            ':input[data-drupal-selector="edit-style-options-fullcalendar-options-navlinks"]' => ['checked' => FALSE],
+          ],
+          'or',
+          [
+            ':input[data-drupal-selector="edit-style-options-direct-to-item"]' => ['checked' => FALSE],
+          ],
+        ],
+        'required' => [
+          [
+            ':input[data-drupal-selector="edit-style-options-fullcalendar-options-navlinks"]' => ['checked' => TRUE],
+            'and',
+            ':input[data-drupal-selector="edit-style-options-direct-to-item"]' => ['checked' => TRUE],
+          ],
         ],
       ],
     ];
