@@ -89,7 +89,7 @@ class FullCalendarSolr extends StylePluginBase {
       '#title' => $this->t('Year Field'),
       '#required' => TRUE,
       '#options' => $view_argument_labels,
-      '#description' => $this->t('The selected field should contain a string or integer representing a year in YYYY format.'),
+      '#description' => $this->t('The selected contextual filter should contain a string or integer representing a year in YYYY format.'),
       '#default_value' => $this->options['year_field'],
     ];
 
