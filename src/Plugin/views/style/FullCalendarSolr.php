@@ -132,7 +132,7 @@ class FullCalendarSolr extends StylePluginBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Link to Item'),
       '#default_value' => $this->options['direct_to_item'],
-      '#description' => $this->t('Link to the item instead of the day view if the date only has one result. This only takes effect if the "Navigation Links to Day View" option is enabled.'),
+      '#description' => $this->t('Link to the item instead of the day view if the date only has one result. If this is enabled, the "Item URL Field" will need to be configured. NOTE: This only takes effect if the "Navigation Links to Day View" option is enabled.'),
       '#states' => [
         'enabled' => [
           ':input[data-drupal-selector="edit-style-options-fullcalendar-options-navlinks"]' => ['checked' => TRUE],
