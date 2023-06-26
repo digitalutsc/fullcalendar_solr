@@ -58,8 +58,12 @@ select an index.
 (e.g. `/a/b/c/year`)
 1. Under `Fields`, add a string field containing a date in YYYY-MM-DD format.
 Any dates not in YYYY-MM-DD format will not be displayed in the calendar.
-1. Under `Advanced > Contextual Filters`, select an argument containing year
+1. Under `Advanced > Contextual Filters`, select a filter containing year
 values in YYYY format.
+1. Edit the year contextual filter.
+    1. Under `When the filter value is NOT available`, select
+    `Provide default value`.
+    1. Set the type to `Raw value from URL` and set the path component number.
 1. Under `Format > FullCalendar Solr Settings`, configure the date and year
 fields.
 1. Add any additional view configurations as needed.
@@ -75,7 +79,7 @@ highlighted date is clicked.
 the `Navigation Links to Day View` option and save.
 1. Click `Add > Page`. This will be the new day view.
 1. Select a display style. (One that is not `FullCalendar Solr`)
-1. Under `Advanced > Contextual Filter`, add a field containing a string date
+1. Under `Advanced > Contextual Filter`, add a filter containing a string date
 in YYYY-MM-DD format. This should be the same as the date field used in the
 year view.
     - If the date field is not available, try adding the field to the Search
@@ -118,9 +122,11 @@ year with results.
 1. Under `Format`, set the format to `Unformatted list` and select to
 show `Fields`.
 1. If your calendar view has any contextual filters other than the year,
-add them under `Contextual filters`. In the settings of each filter, under
-`When the filter value is NOT available`, select `Provide default value` and
-set the type to `Raw value from URL`.
+add them under `Contextual filters`.
+    1. In the settings of each filter, under
+    `When the filter value is NOT available`, select `Provide default value`.
+    1. Set the type to `Raw value from URL` and set the path component number
+    based on the path of where this block will be placed.
 1. Under `Fields`, add a year field containing years in YYYY format.
 1. Edit the year field.
     1. Set the `Thousands marker` to `None`.
