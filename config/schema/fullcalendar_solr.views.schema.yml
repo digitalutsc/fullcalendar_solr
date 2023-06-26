@@ -11,28 +11,37 @@ views.style.fullcalendar_solr:
     heading_text:
       type: string
       label: "Header text template"
-    no_results:
-      type: boolean
-      label: "Display calendar even if there are no results"
     fullcalendar_options:
       type: mapping
       label: "FullCalendar options"
       mapping:
+        eventBackgroundColor:
+          type: string
+          label: "Date highlight color"
+        initialDate:
+          type: string
+          label: "Date to display in the calendar"        
         initialView:
           type: string
           label: "Calendar type"
-        multiMonthMinWidth:
-          type: integer
-          label: "Minimum month width"
         multiMonthMaxColumns:
           type: integer
           label: "Maximum number of months per row in year view"
+        multiMonthMinWidth:
+          type: integer
+          label: "Minimum month width"
         navLinks:
           type: boolean
           label: "Links to day view"
-        initialDate:
-          type: string
-          label: "Date to display in the calendar"
+    direct_to_item:
+      type: boolean
+      label: "Link to item if a date has only one result"
+    item_url_field:
+      type: string
+      label: "Item URL field"
+    no_results:
+      type: boolean
+      label: "Display calendar even if there are no results"
     classes:
       type: string
       label: "CSS Classes"
