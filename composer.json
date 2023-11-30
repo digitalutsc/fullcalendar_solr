@@ -1,0 +1,6 @@
+{
+  "name": "islandora_lite/fullcalendar_solr",
+  "type": "drupal-module",
+  "description": "Gets static IIIF files for the Islandora mirador viewer",
+  "keywords": ["Drupal"]
+}
