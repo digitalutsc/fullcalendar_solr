@@ -1,5 +1,5 @@
 {
-  "name": "islandora_lite/fullcalendar_solr",
+  "name": "drupal/fullcalendar_solr",
   "type": "drupal-module",
   "description": "FullCalendar Solr provides integration with the FullCalendar JavaScript library to provide a Year Calendar View display formatter that is compatible with Search API.",
   "keywords": ["Drupal"]
