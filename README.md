@@ -52,12 +52,13 @@ The Search API backend needs to support the `search_api_facets` option.
 ### Creating a Year View
 
 1. At `/admin/structure/views`, click `Add view`. Under `View settings > Show`,
-select an index.
+select an Solr index.
 1. Create a Page. Set the display format to `FullCalendar Solr`.
 1. Configure the page path such that the last component is 'year'.
 (e.g. `/a/b/c/year`)
 1. Under `Fields`, add a string field containing a date in YYYY-MM-DD format.
 Any dates not in YYYY-MM-DD format will not be displayed in the calendar.
+    - Ensure that the date field selected is an indexed field by the Solr Index chosen.
 1. Under `Advanced > Contextual Filters`, select a filter containing year
 values in YYYY format.
 1. Edit the year contextual filter.
@@ -127,9 +128,9 @@ add them under `Contextual filters`.
     `When the filter value is NOT available`, select `Provide default value`.
     1. Set the type to `Raw value from URL` and set the path component number
     based on the path of where this block will be placed.
-1. Under `Fields`, add a year field containing years in YYYY format.
+1. Under `Fields`, add a year field containing years in YYYY format. (unsure about this line --> what does it mean to contain years in YYYY format)
 1. Edit the year field.
-    1. Set the `Thousands marker` to `None`.
+    1. Set the `Thousands marker` to `None`. (cannot find this line)
     1. Go to the `Rewrite results` section.
         1. Check `Override the output of this field with custom text`.
         1. Under `Text`, customize your link text. E.g. `Calendar View`.
