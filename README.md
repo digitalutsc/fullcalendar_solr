@@ -52,7 +52,7 @@ The Search API backend needs to support the `search_api_facets` option.
 ### Creating a Year View
 
 1. At `/admin/structure/views`, click `Add view`. Under `View settings > Show`,
-select an Solr index.
+select a Solr index.
 1. Create a Page. Set the display format to `FullCalendar Solr`.
 1. Configure the page path such that the last component is 'year'.
 (e.g. `/a/b/c/year`)
