@@ -89,7 +89,7 @@ year view.
 path of the year view except the last URL component is 'day' instead of 'year'
 (i.e. if the year view has path `/a/b/c/year`, the day view must have path
 `/a/b/c/day`).
-**Note:** The year and day view should have the same contextual filters.
+**Note:** The year and day view should have the same contextual filters. (what does this mean?)
 1. Add any additional view configurations as needed.
 1. Save the view.
 
