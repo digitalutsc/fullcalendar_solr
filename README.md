@@ -128,9 +128,9 @@ add them under `Contextual filters`.
     `When the filter value is NOT available`, select `Provide default value`.
     1. Set the type to `Raw value from URL` and set the path component number
     based on the path of where this block will be placed.
-1. Under `Fields`, add a year field containing years in YYYY format. (unsure about this line --> what does it mean to contain years in YYYY format)
+1. Under `Fields`, add a year field containing years in YYYY format.
 1. Edit the year field.
-    1. Set the `Thousands marker` to `None`. (cannot find this line)
+    1. Set the `Thousands marker` to `None`.
     1. Go to the `Rewrite results` section.
         1. Check `Override the output of this field with custom text`.
         1. Under `Text`, customize your link text. E.g. `Calendar View`.
