@@ -3,19 +3,21 @@
  * Invokes the FullCalendar library for each calendar listed in drupalSettings.
  */
 
-(function($) {
+(function($, Drupal) {
   Drupal.behaviors.fullCalendarSolr = {
     attach(context, settings) {
       /**
        * Provides default options for creating a FullCalendar instance
+       * @param {string} currentLanguage - The current page language code
        * @return {object} an object containing FullCalendar options
        */
-      function getPresets() {
+      function getPresets(currentLanguage) {
         return {
           initialView: "multiMonthYear",
           contentHeight: "auto",
           eventDisplay: "background",
           headerToolbar: false,
+          locale: currentLanguage || 'en',
           dayHeaderFormat: {
             weekday: "narrow" // Single character weekday. E.g. W
           }
@@ -25,9 +27,11 @@
       /**
        * Converts a date object into a YYYY-MM-DD string.
        * @param {Date} dateObj a date object
+       * @param {string} locale the locale code for formatting
        * @return {string} a date string formatted as YYYY-MM-DD
        */
-      function formatDate(dateObj) {
+      function formatDate(dateObj, locale) {
+        // Use en-CA locale to ensure YYYY-MM-DD format consistently
         return dateObj.toLocaleDateString("en-CA", {
           year: "numeric",
           month: "2-digit",
@@ -62,11 +66,14 @@
             yearOptions.push(`<option value="${year}">${year}</option>`);
           }
         });
-        const heading = `<h2 class="fc-solr-header-label">${headingTemplate.replaceAll(
+        // Translate the heading template, then replace the year placeholder
+        const translatedTemplate = Drupal.t(headingTemplate);
+        const heading = `<h2 class="fc-solr-header-label">${translatedTemplate.replaceAll(
           "<year>",
           selectedYear
         )}</h2>`;
-        const yearSelect = `<select aria-label="Select calendar year" class="fc-solr-year-dropdown">${yearOptions.join(
+        const ariaLabel = Drupal.t('Select calendar year');
+        const yearSelect = `<select aria-label="${ariaLabel}" class="fc-solr-year-dropdown">${yearOptions.join(
           "\n"
         )}</select>`;
         return heading + yearSelect;
@@ -100,8 +107,10 @@
 
         // Build calendar options.
         const calendarSettings = drupalSettings.FullCalendarSolr[calendarIndex];
+        const currentLanguage = calendarSettings.currentLanguage || 'en';
+
         const calendarOptions = {
-          ...getPresets(),
+          ...getPresets(currentLanguage),
           ...calendarSettings.options,
           events: JSON.parse(calendarSettings.events)
         };
@@ -116,7 +125,7 @@
         const calendar = drupalSettings.calendars[calendarIndex];
         if (calendarSettings.options.navLinks) {
           calendar.setOption("navLinkDayClick", function(dateObj, jsEvent) {
-            const date = formatDate(dateObj);
+            const date = formatDate(dateObj, currentLanguage);
             const event = calendar.getEventById(date);
             if (event && event.url) {
               let resultsPage = event.url;
@@ -128,19 +137,21 @@
             }
           });
           calendar.setOption("navLinkHint", (dateText, dateObj) => {
-            const date = formatDate(dateObj);
+            const date = formatDate(dateObj, currentLanguage);
             const targetEvent = calendar.getEventById(date);
             if (
               !targetEvent ||
               Number.isNaN(targetEvent.extendedProps.count) ||
               targetEvent.extendedProps.count <= 0
             ) {
-              return `No results for ${dateText}`;
+              return Drupal.t('No results for @date', {'@date': dateText});
             }
-            if (targetEvent.extendedProps.count === 1) {
-              return `1 result for ${dateText}`;
-            }
-            return `${targetEvent.extendedProps.count} results for ${dateText}`;
+            return Drupal.formatPlural(
+              targetEvent.extendedProps.count,
+              '1 result for @date',
+              '@count results for @date',
+              {'@date': dateText}
+            );
           });
         }
 
@@ -162,7 +173,7 @@
             // Modify aria-labels for dates with results.
             const title = $ref.attr("title");
             $(this).removeAttr("aria-labelledby");
-            $(this).attr("aria-label", `Go to ${title}`);
+            $(this).attr("aria-label", Drupal.t('Go to @title', {'@title': title}));
           }
         });
 
@@ -186,4 +197,4 @@
       });
     }
   };
-})(jQuery);
+})(jQuery, Drupal);
