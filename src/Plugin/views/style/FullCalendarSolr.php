@@ -224,12 +224,6 @@ class FullCalendarSolr extends StylePluginBase {
     }
     unset($this->view->row_index);
 
-    // Log the total number of results returned by Solr.
-    \Drupal::logger('fullcalendar_solr')->notice('Calendar view: Solr returned @total total results across @dates unique dates.', [
-      '@total' => count($this->view->result),
-      '@dates' => count($date_counts),
-    ]);
-
     // Create the path to the day view.
     $path = explode('/', $this->view->getUrl()->toString());
     $year_index = array_search('year', array_reverse($path, TRUE));
