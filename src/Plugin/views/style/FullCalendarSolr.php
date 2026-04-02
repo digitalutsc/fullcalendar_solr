@@ -159,6 +159,7 @@ class FullCalendarSolr extends StylePluginBase {
         'required' => [
           [
             ':input[data-drupal-selector="edit-style-options-fullcalendar-options-navlinks"]' => ['checked' => TRUE],
+            // phpcs:ignore -- No key specified for array entry; first entry specifies key
             'and',
             ':input[data-drupal-selector="edit-style-options-direct-to-item"]' => ['checked' => TRUE],
           ],
